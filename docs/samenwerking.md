@@ -28,6 +28,6 @@ Backend en frontend worden tegelijk gebouwd, elk in een eigen Claude Code-sessie
 
 ## Stand
 
-- Backend (FastAPI + SQLite): wordt gebouwd op branch `backend`. Eerst: woordenlijsten
-  uploaden/opvragen, daarna dictee genereren via Claude.
+- Backend (FastAPI + SQLite): alle endpoints uit `api.md` werken en staan op `main`.
+  Starten: zie `backend/README.md` → draait op `http://localhost:8000`.
 - Frontend: door de andere terminal.

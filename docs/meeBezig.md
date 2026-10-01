@@ -6,14 +6,16 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- 🔨 Python-project opzetten (FastAPI + SQLite) + "hello world" (`/api/health`)
+- ⏸️ Basis-backend is klaar en gemerged in `main`. Wacht op feedback van de frontend.
 
 ### Hierna
-- Woordenlijst uploaden (CSV) en opslaan
-- Weken/woorden opvragen
-- Dictee genereren via de Claude API (+ controle van de zinnen, pinyin via `pypinyin`)
+- Dictee testen met een echte API-key (`.env` aanmaken) en de prompt bijsturen
+- `POST /api/dictees/{id}/resultaat`: fouten bijhouden (fase 1, optioneel)
+- Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-10-02: Basis-backend: upload/opvragen/verwijderen van weken, woorden, dictees genereren
+  via Claude met controle en pinyin via `pypinyin`. 10 tests (`backend/README.md`)
 - 2026-10-02: API-contract (`docs/api.md`) en samenwerkingsafspraken (`docs/samenwerking.md`)
 - 2026-10-02: Backend-stack gekozen: Python + FastAPI + SQLite
 

@@ -29,12 +29,12 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 ### Fase 0: Setup
 - [x] Repo-structuur en docs
 - [ ] Tech stack kiezen (backend gekozen: FastAPI + SQLite)
-- [ ] Backend en frontend die "hello world" doen
+- [ ] Backend en frontend die "hello world" doen (backend ✅ 2026-10-02, frontend nog niet)
 
 ### Fase 1: MVP (dictee)
-- [ ] Woordenlijst uploaden (CSV) en opslaan
+- [x] Woordenlijst uploaden (CSV) en opslaan (backend; scherm in frontend nog te doen)
 - [ ] Lijst van alle weken/woorden bekijken
-- [ ] Dictee genereren via de Claude API
+- [x] Dictee genereren via de Claude API (backend; nog niet getest met echte API-key)
 - [ ] Pinyin tonen → oplossing tonen
 - [ ] Lokaal draaien
 
