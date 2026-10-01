@@ -46,6 +46,8 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 3. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
    Afgekeurde zinnen worden tot 2 keer opnieuw gevraagd; lukt het niet, dan komt er een waarschuwing.
 4. De pinyin wordt door de backend berekend, niet door de AI.
+5. Woorden die je eerder fout had (`PUT /api/dictees/{id}/resultaat`) gaan als extra instructie
+   mee in de prompt (top 5 op `keer_fout`), zodat ze vaker terugkomen.
 
 ## Woordenlijst uit een screenshot
 

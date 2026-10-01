@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS dictees (
     week           INTEGER NOT NULL REFERENCES weken(nummer) ON DELETE CASCADE,
     aangemaakt_op  TEXT NOT NULL,
     zinnen         TEXT NOT NULL,  -- JSON-lijst van Zin
-    waarschuwingen TEXT NOT NULL   -- JSON-lijst van strings
+    waarschuwingen TEXT NOT NULL,  -- JSON-lijst van strings
+    resultaat      TEXT            -- JSON-lijst van ZinResultaat, NULL = nog niet nagekeken
 );
 """
 
@@ -46,6 +47,10 @@ def verbind(pad: Path) -> sqlite3.Connection:
 def initialiseer(pad: Path) -> None:
     with verbind(pad) as conn:
         conn.executescript(SCHEMA)
+        # Databases van vóór de resultaat-kolom bijwerken.
+        kolommen = [r["name"] for r in conn.execute("PRAGMA table_info(dictees)")]
+        if "resultaat" not in kolommen:
+            conn.execute("ALTER TABLE dictees ADD COLUMN resultaat TEXT")
     conn.close()
 
 
@@ -59,13 +64,17 @@ def week_bestaat(conn: sqlite3.Connection, nummer: int) -> bool:
 def sla_week_op(
     conn: sqlite3.Connection, nummer: int, titel: str | None, woorden: list[dict]
 ) -> None:
-    """Slaat een week op; een bestaande week met hetzelfde nummer wordt vervangen."""
+    """Slaat een week op. Bestaat ze al, dan worden titel en woorden vervangen
+    (de dictees van die week blijven bewaard)."""
     with conn:
-        conn.execute("DELETE FROM weken WHERE nummer = ?", (nummer,))
         conn.execute(
-            "INSERT INTO weken (nummer, titel, geupload_op) VALUES (?, ?, ?)",
+            """
+            INSERT INTO weken (nummer, titel, geupload_op) VALUES (?, ?, ?)
+            ON CONFLICT (nummer) DO UPDATE SET titel = excluded.titel, geupload_op = excluded.geupload_op
+            """,
             (nummer, titel, nu()),
         )
+        conn.execute("DELETE FROM woorden WHERE week = ?", (nummer,))
         conn.executemany(
             "INSERT INTO woorden (week, hanzi, pinyin, betekenis) VALUES (?, ?, ?, ?)",
             [(nummer, w["hanzi"], w["pinyin"], w["betekenis"]) for w in woorden],
@@ -108,7 +117,11 @@ def haal_woorden(
         sql += " WHERE week <= ?"
         params = (tot_week,)
     sql += " ORDER BY week, id"
-    return [dict(r) for r in conn.execute(sql, params).fetchall()]
+    fouten = foutentelling(conn)
+    return [
+        {**dict(r), "keer_fout": fouten.get(r["hanzi"], 0)}
+        for r in conn.execute(sql, params).fetchall()
+    ]
 
 
 # --- Dictees -----------------------------------------------------------------
@@ -137,11 +150,12 @@ def haal_dictee(conn: sqlite3.Connection, dictee_id: int) -> dict | None:
     dictee = dict(rij)
     dictee["zinnen"] = json.loads(dictee["zinnen"])
     dictee["waarschuwingen"] = json.loads(dictee["waarschuwingen"])
+    dictee["resultaat"] = json.loads(dictee["resultaat"]) if dictee["resultaat"] else None
     return dictee
 
 
 def lijst_dictees(conn: sqlite3.Connection, week: int | None = None) -> list[dict]:
-    sql = "SELECT id, week, aangemaakt_op, zinnen FROM dictees"
+    sql = "SELECT id, week, aangemaakt_op, zinnen, resultaat FROM dictees"
     params: tuple = ()
     if week is not None:
         sql += " WHERE week = ?"
@@ -153,6 +167,9 @@ def lijst_dictees(conn: sqlite3.Connection, week: int | None = None) -> list[dic
             "week": r["week"],
             "aangemaakt_op": r["aangemaakt_op"],
             "aantal_zinnen": len(json.loads(r["zinnen"])),
+            "aantal_goed": (
+                sum(z["goed"] for z in json.loads(r["resultaat"])) if r["resultaat"] else None
+            ),
         }
         for r in conn.execute(sql, params).fetchall()
     ]
@@ -161,3 +178,27 @@ def lijst_dictees(conn: sqlite3.Connection, week: int | None = None) -> list[dic
 def verwijder_dictee(conn: sqlite3.Connection, dictee_id: int) -> bool:
     with conn:
         return conn.execute("DELETE FROM dictees WHERE id = ?", (dictee_id,)).rowcount > 0
+
+
+def sla_resultaat_op(conn: sqlite3.Connection, dictee_id: int, resultaat: list[dict]) -> None:
+    with conn:
+        conn.execute(
+            "UPDATE dictees SET resultaat = ? WHERE id = ?",
+            (json.dumps(resultaat, ensure_ascii=False), dictee_id),
+        )
+
+
+def foutentelling(conn: sqlite3.Connection) -> dict[str, int]:
+    """Hoe vaak elk woord (hanzi) fout was, over alle nagekeken dictees.
+
+    Een foute zin zonder `foute_woorden` telt voor alle weekwoorden in die zin.
+    """
+    telling: dict[str, int] = {}
+    for rij in conn.execute("SELECT zinnen, resultaat FROM dictees WHERE resultaat IS NOT NULL"):
+        zinnen = {z["nr"]: z for z in json.loads(rij["zinnen"])}
+        for res in json.loads(rij["resultaat"]):
+            if res["goed"] or res["nr"] not in zinnen:
+                continue
+            for hanzi in res["foute_woorden"] or zinnen[res["nr"]]["woorden_van_de_week"]:
+                telling[hanzi] = telling.get(hanzi, 0) + 1
+    return telling

@@ -45,7 +45,9 @@ def test_upload_en_opvragen(client):
     assert r.status_code == 201
     week = r.json()
     assert week["nummer"] == 1 and week["titel"] == "Begin" and week["aantal_woorden"] == 4
-    assert week["woorden"][0] == {"id": 1, "hanzi": "我", "pinyin": "wǒ", "betekenis": "ik", "week": 1}
+    assert week["woorden"][0] == {
+        "id": 1, "hanzi": "我", "pinyin": "wǒ", "betekenis": "ik", "week": 1, "keer_fout": 0
+    }
 
     # puntkomma + BOM (Excel) en nummer via formulier
     r = upload(client, "lijst.csv", CSV_WEEK2, nummer="2")

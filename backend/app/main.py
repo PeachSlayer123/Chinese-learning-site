@@ -72,6 +72,7 @@ class Woord(BaseModel):
     pinyin: str
     betekenis: str
     week: int
+    keer_fout: int
 
 
 class WeekSamenvatting(BaseModel):
@@ -117,12 +118,23 @@ class Zin(BaseModel):
     onbekende_tekens: list[str]
 
 
+class ZinResultaat(BaseModel):
+    nr: int
+    goed: bool
+    foute_woorden: list[str] = []
+
+
+class ResultaatAanvraag(BaseModel):
+    zinnen: list[ZinResultaat] = Field(min_length=1)
+
+
 class Dictee(BaseModel):
     id: int
     week: int
     aangemaakt_op: str
     zinnen: list[Zin]
     waarschuwingen: list[str]
+    resultaat: list[ZinResultaat] | None
 
 
 class DicteeSamenvatting(BaseModel):
@@ -130,6 +142,7 @@ class DicteeSamenvatting(BaseModel):
     week: int
     aangemaakt_op: str
     aantal_zinnen: int
+    aantal_goed: int | None
 
 
 class DicteeAanvraag(BaseModel):
@@ -290,6 +303,30 @@ def haal_dictee(dictee_id: int, conn: Conn):
     if dictee is None:
         raise HTTPException(404, f"Dictee {dictee_id} bestaat niet.")
     return dictee
+
+
+@app.put("/api/dictees/{dictee_id}/resultaat", response_model=Dictee)
+def sla_resultaat_op(dictee_id: int, aanvraag: ResultaatAanvraag, conn: Conn):
+    """Welke zinnen/woorden goed of fout waren. Opnieuw sturen overschrijft het vorige resultaat."""
+    dictee = db.haal_dictee(conn, dictee_id)
+    if dictee is None:
+        raise HTTPException(404, f"Dictee {dictee_id} bestaat niet.")
+    zinnen = {z["nr"]: z for z in dictee["zinnen"]}
+    resultaat: dict[int, dict] = {}
+    for res in aanvraag.zinnen:
+        if res.nr not in zinnen:
+            raise HTTPException(422, f"Zin {res.nr} bestaat niet in dit dictee.")
+        if res.nr in resultaat:
+            raise HTTPException(422, f"Zin {res.nr} staat er twee keer in.")
+        niet_in_zin = [w for w in res.foute_woorden if w not in zinnen[res.nr]["hanzi"]]
+        if niet_in_zin:
+            raise HTTPException(422, f"Zin {res.nr} bevat niet: {' '.join(niet_in_zin)}")
+        # Een zin met foute woorden is fout, ook als 'goed' per ongeluk true is.
+        foute_woorden = list(dict.fromkeys(res.foute_woorden))
+        resultaat[res.nr] = {"nr": res.nr, "goed": res.goed and not foute_woorden, "foute_woorden": foute_woorden}
+
+    db.sla_resultaat_op(conn, dictee_id, [resultaat[nr] for nr in sorted(resultaat)])
+    return db.haal_dictee(conn, dictee_id)
 
 
 @app.delete("/api/dictees/{dictee_id}", status_code=204)

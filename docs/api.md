@@ -20,6 +20,7 @@ type Woord = {
   pinyin: string       // "xuéxí" (toontekens)
   betekenis: string    // "leren / studeren"
   week: number         // weeknummer waar het woord bij hoort
+  keer_fout: number    // hoe vaak dit woord fout was in nagekeken dictees (0 = nooit)
 }
 
 type WeekSamenvatting = {
@@ -50,15 +51,25 @@ type Zin = {
   onbekende_tekens: string[]    // tekens die niet in een geüploade lijst staan (ideaal: [])
 }
 
+type ZinResultaat = {
+  nr: number
+  goed: boolean
+  foute_woorden: string[]       // optioneel bij versturen; hanzi die in die zin fout waren
+}
+
 type Dictee = {
   id: number
   week: number
   aangemaakt_op: string
   zinnen: Zin[]
   waarschuwingen: string[]      // bv. "Zin 3 bevat onbekende tekens: 很"
+  resultaat: ZinResultaat[] | null  // null = nog niet nagekeken
 }
 
-type DicteeSamenvatting = { id: number; week: number; aangemaakt_op: string; aantal_zinnen: number }
+type DicteeSamenvatting = {
+  id: number; week: number; aangemaakt_op: string; aantal_zinnen: number
+  aantal_goed: number | null    // null = nog niet nagekeken
+}
 ```
 
 > De backend geeft altijd de volledige oplossing mee. **De frontend beslist** wat getoond wordt
@@ -106,6 +117,7 @@ Screenshot/foto van de woordenlijst:
 | `POST` | `/api/dictees` | `{"week": 3, "aantal_zinnen": 5}` (`aantal_zinnen` 1–15, standaard 5) | `201 Dictee` |
 | `GET` | `/api/dictees?week=N` | – | `200 DicteeSamenvatting[]` (nieuwste eerst; `week` optioneel) |
 | `GET` | `/api/dictees/{id}` | – | `200 Dictee` / `404` |
+| `PUT` | `/api/dictees/{id}/resultaat` | `{"zinnen": [{"nr": 1, "goed": false, "foute_woorden": ["学习"]}, {"nr": 2, "goed": true}]}` | `200 Dictee` / `404` / `422` |
 | `DELETE` | `/api/dictees/{id}` | – | `204` / `404` |
 
 - Genereren duurt een paar seconden (AI-call): toon een laadindicator.
@@ -114,5 +126,13 @@ Screenshot/foto van de woordenlijst:
   (woorden uit je lijsten krijgen jouw pinyin, de rest via `pypinyin`).
 - Bekende woorden = woorden van de gekozen week + alle weken met een lager nummer.
 
+Resultaat (wat had ik fout?):
+- Opnieuw sturen **overschrijft** het vorige resultaat. Niet meegestuurde zinnen = niet nagekeken.
+- `foute_woorden` is optioneel. Een foute zin zonder `foute_woorden` telt als fout voor alle
+  weekwoorden in die zin (`woorden_van_de_week`). Een zin met `foute_woorden` is altijd fout.
+- `422` bij een onbekend `nr`, een dubbel `nr`, of een fout woord dat niet in die zin staat.
+- Woorden die vaak fout waren (`Woord.keer_fout`) komen in nieuwe dictees vaker terug.
+- Een week vervangen (`PUT /api/weken/{n}` of upload met `vervang`) houdt de dictees en resultaten van die week bij.
+
 ## Later (nog niet gebouwd)
-- `POST /api/dictees/{id}/resultaat`: aangeven welke zinnen/woorden fout waren.
+- (niets gepland, vragen welkom)

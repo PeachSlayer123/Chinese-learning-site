@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from . import pinyin
 
 MAX_EXTRA_RONDES = 2  # hoe vaak we zinnen die de controle niet halen opnieuw vragen
+MAX_OEFENWOORDEN = 5  # zoveel woorden die vaak fout waren, krijgen extra aandacht
 
 
 class RuweZin(BaseModel):
@@ -94,12 +95,22 @@ def _controleer(zin: RuweZin, weekhanzi: list[str], bekende_hanzi: list[str]) ->
     return problemen
 
 
+def oefenwoorden_tekst(woorden: list[dict]) -> str:
+    """Instructie om woorden die vaak fout waren (veld `keer_fout`) vaker te gebruiken."""
+    vaak_fout = sorted((w for w in woorden if w.get("keer_fout")), key=lambda w: -w["keer_fout"])
+    if not vaak_fout:
+        return ""
+    lijst = ", ".join(f"{w['hanzi']} ({w['keer_fout']}x fout)" for w in vaak_fout[:MAX_OEFENWOORDEN])
+    return f"De leerling schreef deze woorden eerder fout; gebruik ze extra vaak: {lijst}."
+
+
 def genereer_dictee(
     bron: ZinnenBron, weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int
 ) -> tuple[list[dict], list[str]]:
     """Maakt een dictee. Geeft (zinnen, waarschuwingen) terug in de vorm van docs/api.md.
 
     `bekende_woorden` = woorden van vorige weken (zonder de weekwoorden zelf).
+    Woorden met een `keer_fout` > 0 komen vaker terug.
     """
     weekhanzi = [w["hanzi"] for w in weekwoorden]
     alle_woorden = weekwoorden + bekende_woorden
@@ -108,7 +119,8 @@ def genereer_dictee(
 
     goed: list[RuweZin] = []
     beste_afgekeurde: list[RuweZin] = []
-    opmerking = ""
+    oefenen = oefenwoorden_tekst(weekwoorden + bekende_woorden)
+    opmerking = oefenen
 
     for _ in range(1 + MAX_EXTRA_RONDES):
         nodig = aantal - len(goed)
@@ -124,11 +136,12 @@ def genereer_dictee(
             redenen = "; ".join(
                 f"'{z.hanzi}' {', '.join(_controleer(z, weekhanzi, alle_hanzi))}" for z in afgekeurd
             )
-            opmerking = (
+            feedback = (
                 f"Deze zinnen werden afgekeurd: {redenen}. "
                 f"Maak nieuwe zinnen die wel aan de regels voldoen. "
                 f"Deze zinnen heb je al (niet herhalen): {' / '.join(g.hanzi for g in goed) or '-'}"
             )
+            opmerking = f"{oefenen}\n\n{feedback}" if oefenen else feedback
 
     # Na de extra rondes: aanvullen met de beste afgekeurde zinnen, met een waarschuwing.
     waarschuwingen = []
