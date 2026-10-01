@@ -207,10 +207,16 @@ async def upload_week(
 
 @app.post("/api/weken/herken", response_model=HerkendeWeek)
 async def herken_week(herkenner: Herkenner, bestand: Annotated[UploadFile, File()]):
-    """Leest een screenshot/foto, maar slaat nog niets op (om eerst na te kijken)."""
-    if not is_afbeelding(bestand.filename, bestand.content_type):
-        raise HTTPException(422, "Dit endpoint verwacht een afbeelding (PNG, JPG of WEBP).")
-    nummer, woorden, waarschuwingen = await _herken_afbeelding(bestand, herkenner)
+    """Leest een CSV of screenshot/foto, maar slaat nog niets op (om eerst na te kijken)."""
+    if is_afbeelding(bestand.filename, bestand.content_type):
+        nummer, woorden, waarschuwingen = await _herken_afbeelding(bestand, herkenner)
+    else:
+        try:
+            woorden, waarschuwingen = lees_csv(await bestand.read()), []
+        except OngeldigeLijst as e:
+            raise HTTPException(422, str(e))
+        nummer = None
+    nummer = week_uit_bestandsnaam(bestand.filename) or nummer
     return {"nummer": nummer, "woorden": woorden, "waarschuwingen": waarschuwingen}
 
 
