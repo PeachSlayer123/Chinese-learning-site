@@ -53,7 +53,6 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 - Opstarten op een nieuw toestel en elke dag: [`opstarten.md`](opstarten.md)
 - `.env` (API-key) en `data/app.db` (alle woordenlijsten en dictees) staan **niet** in git.
   Op een ander toestel: opnieuw een `.env` maken en `app.db` meekopiëren als je je data wilt houden
-- Op de eerste pc staat Node in `D:\` (D:
-ode.exe). Terminals die vóór de installatie gestart zijn, vinden het niet
+- Op de eerste pc staat Node in `D:\` (`D:\node.exe`). Terminals die vóór de installatie gestart zijn, vinden het niet
 - `uvicorn --reload` laadt nieuwe backend-code soms niet; dan de backend helemaal herstarten
 - De eerste API-key (`sk-ant-usr-…dgAA`) werkte niet (geen workspace) en staat in een chatgesprek: intrekken in de Console
