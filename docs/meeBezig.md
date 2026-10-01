@@ -1,16 +1,31 @@
 # Mee bezig
 
-Wat ik nu aan het doen ben, en waar ik gebleven ben.
+Wat er nu gebeurt en waar we gebleven zijn. Backend en frontend worden tegelijk gebouwd
+in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt alleen zijn eigen sectie bij.**
 
-## Nu
-- Backend (FastAPI + SQLite) bouwen in worktree `../Chinees-backend`, branch `backend`
-- Frontend in een aparte terminal (zie `docs/samenwerking.md`)
-- API-contract: `docs/api.md`
+## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
-## Volgende stap
-- Fase 1 starten (zie `plan.md`)
+### Nu bezig
+- 🔨 Python-project opzetten (FastAPI + SQLite) + "hello world" (`/api/health`)
 
-## Klaar
+### Hierna
+- Woordenlijst uploaden (CSV) en opslaan
+- Weken/woorden opvragen
+- Dictee genereren via de Claude API (+ controle van de zinnen, pinyin via `pypinyin`)
+
+### Klaar
+- 2026-10-02: API-contract (`docs/api.md`) en samenwerkingsafspraken (`docs/samenwerking.md`)
+- 2026-10-02: Backend-stack gekozen: Python + FastAPI + SQLite
+
+## Frontend (terminal 2, hoofdmap)
+
+### Nu bezig
+- (vult de frontend-terminal zelf in)
+
+### Klaar
+-
+
+## Algemeen klaar
 - 2026-10-01: Repo-structuur en docs opgezet
 
 ## Notities / problemen
