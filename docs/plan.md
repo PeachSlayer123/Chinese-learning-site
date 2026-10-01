@@ -28,7 +28,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 
 ### Fase 0: Setup
 - [x] Repo-structuur en docs
-- [ ] Tech stack kiezen
+- [ ] Tech stack kiezen (backend gekozen: FastAPI + SQLite)
 - [ ] Backend en frontend die "hello world" doen
 
 ### Fase 1: MVP (dictee)
@@ -51,9 +51,9 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 
 | Vraag | Opties | Keuze |
 |---|---|---|
-| Backend | Python (FastAPI) / Node | ? |
+| Backend | Python (FastAPI) / Node | Python (FastAPI) |
 | Frontend | React / Svelte / plain HTML+JS | ? |
-| Database | SQLite (aanbevolen voor 1 gebruiker) | ? |
+| Database | SQLite (aanbevolen voor 1 gebruiker) | SQLite |
 | Uploadformaat | CSV / Excel / tekst / foto van de lijst | ? |
 | Schrift | Vereenvoudigd / traditioneel | ? |
 | Raspberry Pi-model | 3 / 4 / 5 | ? |
