@@ -6,11 +6,11 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- ⏸️ Niets: screenshot-upload is klaar en gemerged. Wacht op feedback van de frontend.
+- 🔨 (2026-10-02) Dictee-resultaat opslaan (`PUT /api/dictees/{id}/resultaat`) en fout geschreven
+  woorden vaker terugbrengen in nieuwe dictees. Raakt `backend/` en `docs/api.md`.
 
 ### Hierna
 - Prompts bijsturen op basis van echte woordenlijsten van de gebruiker
-- `POST /api/dictees/{id}/resultaat`: fouten bijhouden (fase 1, optioneel)
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar

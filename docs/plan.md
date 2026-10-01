@@ -42,6 +42,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 - [ ] Lijst van alle weken/woorden bekijken
 - [x] Dictee genereren via de Claude API (backend ✅ 2026-10-02, getest met echte API)
 - [ ] Pinyin tonen → oplossing tonen
+- [ ] Resultaat van een dictee opslaan + foute woorden vaker terugbrengen (backend: bezig)
 - [ ] Lokaal draaien
 
 ### Fase 2: Op de Pi
