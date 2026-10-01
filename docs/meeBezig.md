@@ -6,14 +6,16 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- 🔨 (2026-10-02) Dictee-resultaat opslaan (`PUT /api/dictees/{id}/resultaat`) en fout geschreven
-  woorden vaker terugbrengen in nieuwe dictees. Raakt `backend/` en `docs/api.md`.
+- ⏸️ Niets. Wacht op de volgende taak of op feedback van de frontend.
 
 ### Hierna
 - Prompts bijsturen op basis van echte woordenlijsten van de gebruiker
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-10-02: Dictee-resultaat: `PUT /api/dictees/{id}/resultaat`, `Woord.keer_fout`,
+  `Dictee.resultaat`, `DicteeSamenvatting.aantal_goed`. Vaak foute woorden gaan mee in de prompt.
+  Fix: een week vervangen verwijderde ook haar dictees. 34 tests
 - 2026-10-02: `/api/weken/herken` accepteert ook CSV (één voorbeeldpad voor de frontend). 21 tests.
   Screenshot-herkenning getest met de echte API (4/4 woorden en het weeknummer goed gelezen)
 - 2026-10-02: Woordenlijst uploaden als screenshot/foto (`POST /api/weken` met afbeelding,
