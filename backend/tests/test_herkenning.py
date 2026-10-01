@@ -129,6 +129,19 @@ def test_herkennen_en_daarna_opslaan(client):
     assert r.json()["woorden"][0]["betekenis"] == "leren / studeren"
 
 
+def test_csv_herkennen_zonder_opslaan(client):
+    gebruik(None)  # CSV heeft geen AI nodig
+    csv = "hanzi,pinyin,betekenis\n你,nǐ,jij\n".encode()
+    r = client.post("/api/weken/herken", files={"bestand": ("week-06.csv", csv, "text/csv")})
+    assert r.status_code == 200
+    assert r.json() == {
+        "nummer": 6,
+        "woorden": [{"hanzi": "你", "pinyin": "nǐ", "betekenis": "jij"}],
+        "waarschuwingen": [],
+    }
+    assert client.get("/api/weken").json() == []
+
+
 def test_put_valideert(client):
     assert client.put("/api/weken/1", json={"woorden": []}).status_code == 422
     assert client.put("/api/weken/1", json={"woorden": [{"hanzi": " ", "pinyin": "x"}]}).status_code == 422
