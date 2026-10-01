@@ -1,0 +1,10 @@
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+anthropic==1.11.0
+pypinyin==0.55.0
+python-dotenv==1.2.4
+
+# Alleen voor tests
+pytest==9.1.1
+httpx==0.28.1

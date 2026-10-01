@@ -1,11 +1,47 @@
 # Backend
 
-De API-server van de app. Taken:
-
-- Woordenlijsten ontvangen (upload) en opslaan
-- Dictees laten genereren via de Claude API
-- Bijhouden welke woorden ik al ken (voortgang)
-
+De API-server van de app: Python + **FastAPI** + **SQLite**.
 De enige plek waar de Claude API-key gebruikt wordt.
 
-Stack: nog te kiezen (zie `docs/plan.md`).
+Het contract met de frontend staat in [`docs/api.md`](../docs/api.md).
+
+## Starten (Windows, vanuit `backend/`)
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+```
+
+- API: <http://localhost:8000/api/health>
+- Interactieve docs (alle endpoints uitproberen): <http://localhost:8000/docs>
+- De API-key en andere instellingen komen uit `.env` in de root van de repo (zie `.env.example`).
+  Zonder key werkt alles behalve dictees genereren (`503`).
+- De database komt standaard in `data/app.db` (staat in `.gitignore`).
+
+## Tests
+
+```powershell
+.venv\Scripts\python -m pytest
+```
+
+De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
+
+## Opbouw
+
+| Bestand | Wat |
+|---|---|
+| `app/main.py` | Endpoints (FastAPI) |
+| `app/db.py` | SQLite-tabellen en queries |
+| `app/woordenlijst.py` | CSV inlezen (ook `;`-CSV uit Excel) |
+| `app/dictee.py` | Zinnen laten maken door Claude + controleren + opnieuw vragen |
+| `app/pinyin.py` | Pinyin berekenen (eigen lijst eerst, anders `pypinyin`) en onbekende tekens zoeken |
+| `app/config.py` | Instellingen uit `.env` |
+
+## Hoe een dictee gemaakt wordt
+
+1. Weekwoorden = woorden van de gekozen week; bekende woorden = alle weken met een lager nummer.
+2. Claude (standaard `claude-haiku-4-5`) geeft zinnen terug als JSON (`hanzi` + `vertaling`).
+3. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
+   Afgekeurde zinnen worden tot 2 keer opnieuw gevraagd; lukt het niet, dan komt er een waarschuwing.
+4. De pinyin wordt door de backend berekend, niet door de AI.
