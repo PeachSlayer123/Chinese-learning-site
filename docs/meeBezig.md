@@ -6,13 +6,14 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- 🔨 (2026-10-02) `PUT /api/dictees/{id}/resultaat` met `{"zinnen": []}` wist het resultaat (vraag frontend).
+- ⏸️ Niets. Wacht op de volgende taak of op feedback van de frontend.
 
 ### Hierna
 - Prompts bijsturen op basis van echte woordenlijsten van de gebruiker
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-10-02: Resultaat wissen met `{"zinnen": []}` (vraag van de frontend)
 - 2026-10-02: Dictee-resultaat: `PUT /api/dictees/{id}/resultaat`, `Woord.keer_fout`,
   `Dictee.resultaat`, `DicteeSamenvatting.aantal_goed`. Vaak foute woorden gaan mee in de prompt.
   Fix: een week vervangen verwijderde ook haar dictees. 34 tests
