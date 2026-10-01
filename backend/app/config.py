@@ -19,6 +19,10 @@ class Instellingen:
     anthropic_api_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
     # Dictees maken is een eenvoudige taak, dus standaard het goedkope Haiku-model (zie docs/plan.md).
     claude_model: str = field(default_factory=lambda: os.getenv("CLAUDE_MODEL", "claude-haiku-4-5"))
+    # Een woordenlijst lezen uit een screenshot vraagt meer precisie: standaard Claude Opus.
+    claude_model_herkenning: str = field(
+        default_factory=lambda: os.getenv("CLAUDE_MODEL_HERKENNING", "claude-opus-5-5")
+    )
     database_pad: Path = field(
         default_factory=lambda: Path(os.getenv("DATABASE_PATH", REPO_ROOT / "data" / "app.db"))
     )

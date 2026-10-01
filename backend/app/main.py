@@ -5,13 +5,21 @@ from collections.abc import Iterator
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Response, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Path, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from . import db
 from .config import instellingen
 from .dictee import AIFout, ClaudeZinnenBron, ZinnenBron, genereer_dictee
+from .herkenning import (
+    ClaudeLijstHerkenner,
+    LijstHerkenner,
+    OngeldigeAfbeelding,
+    bereid_afbeelding_voor,
+    is_afbeelding,
+    verwerk_herkenning,
+)
 from .woordenlijst import OngeldigeLijst, lees_csv, week_uit_bestandsnaam
 
 
@@ -44,7 +52,15 @@ def get_zinnen_bron() -> ZinnenBron:
     return ClaudeZinnenBron(instellingen.anthropic_api_key, instellingen.claude_model)
 
 
+def get_lijst_herkenner() -> LijstHerkenner | None:
+    """None als er geen API-key is; alleen een fout als er echt een afbeelding verwerkt moet worden."""
+    if not instellingen.anthropic_api_key:
+        return None
+    return ClaudeLijstHerkenner(instellingen.anthropic_api_key, instellingen.claude_model_herkenning)
+
+
 Conn = Annotated[sqlite3.Connection, Depends(get_conn)]
+Herkenner = Annotated[LijstHerkenner | None, Depends(get_lijst_herkenner)]
 
 
 # --- Modellen (vorm zoals in docs/api.md) -------------------------------------
@@ -67,6 +83,29 @@ class WeekSamenvatting(BaseModel):
 
 class Week(WeekSamenvatting):
     woorden: list[Woord]
+
+
+class WeekNaUpload(Week):
+    waarschuwingen: list[str]
+
+
+class NieuwWoord(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    hanzi: str = Field(min_length=1)
+    pinyin: str = Field(min_length=1)
+    betekenis: str = ""
+
+
+class WeekOpslaan(BaseModel):
+    titel: str | None = None
+    woorden: list[NieuwWoord] = Field(min_length=1)
+
+
+class HerkendeWeek(BaseModel):
+    nummer: int | None
+    woorden: list[NieuwWoord]
+    waarschuwingen: list[str]
 
 
 class Zin(BaseModel):
@@ -109,27 +148,77 @@ def health():
 # --- Weken & woorden -----------------------------------------------------------
 
 
-@app.post("/api/weken", status_code=201, response_model=Week)
+async def _herken_afbeelding(
+    bestand: UploadFile, herkenner: LijstHerkenner | None
+) -> tuple[int | None, list[dict], list[str]]:
+    if herkenner is None:
+        raise HTTPException(
+            503, "Een afbeelding lezen kan alleen met de AI: ANTHROPIC_API_KEY ontbreekt in .env."
+        )
+    try:
+        afbeelding, media_type = bereid_afbeelding_voor(await bestand.read())
+        herkend = herkenner.herken(afbeelding, media_type)
+    except OngeldigeAfbeelding as e:
+        raise HTTPException(422, str(e))
+    except AIFout as e:
+        raise HTTPException(502, str(e))
+    woorden, waarschuwingen = verwerk_herkenning(herkend)
+    if not woorden:
+        reden = f" {waarschuwingen[0]}" if waarschuwingen else ""
+        raise HTTPException(422, f"Er werden geen woorden gevonden op de afbeelding.{reden}")
+    return herkend.week, woorden, waarschuwingen
+
+
+@app.post("/api/weken", status_code=201, response_model=WeekNaUpload)
 async def upload_week(
     conn: Conn,
+    herkenner: Herkenner,
     bestand: Annotated[UploadFile, File()],
     nummer: Annotated[int | None, Form(ge=1)] = None,
     titel: Annotated[str | None, Form()] = None,
     vervang: Annotated[bool, Form()] = False,
 ):
+    """Upload een CSV, of een screenshot/foto van de lijst (dan leest de AI de woorden)."""
     nummer = nummer or week_uit_bestandsnaam(bestand.filename)
+    # Snel falen vóór de (betaalde) AI-call als het nummer al vastligt en de week bestaat.
+    if nummer is not None and db.week_bestaat(conn, nummer) and not vervang:
+        raise HTTPException(409, f"Week {nummer} bestaat al. Stuur vervang=true om te vervangen.")
+
+    waarschuwingen: list[str] = []
+    if is_afbeelding(bestand.filename, bestand.content_type):
+        nummer_op_afbeelding, woorden, waarschuwingen = await _herken_afbeelding(bestand, herkenner)
+        nummer = nummer or nummer_op_afbeelding
+    else:
+        try:
+            woorden = lees_csv(await bestand.read())
+        except OngeldigeLijst as e:
+            raise HTTPException(422, str(e))
+
     if nummer is None:
         raise HTTPException(
             422, "Geen weeknummer: geef 'nummer' mee of noem het bestand bv. week-03.csv."
         )
-    try:
-        woorden = lees_csv(await bestand.read())
-    except OngeldigeLijst as e:
-        raise HTTPException(422, str(e))
     if db.week_bestaat(conn, nummer) and not vervang:
         raise HTTPException(409, f"Week {nummer} bestaat al. Stuur vervang=true om te vervangen.")
 
     db.sla_week_op(conn, nummer, (titel or "").strip() or None, woorden)
+    return {**db.haal_week(conn, nummer), "waarschuwingen": waarschuwingen}
+
+
+@app.post("/api/weken/herken", response_model=HerkendeWeek)
+async def herken_week(herkenner: Herkenner, bestand: Annotated[UploadFile, File()]):
+    """Leest een screenshot/foto, maar slaat nog niets op (om eerst na te kijken)."""
+    if not is_afbeelding(bestand.filename, bestand.content_type):
+        raise HTTPException(422, "Dit endpoint verwacht een afbeelding (PNG, JPG of WEBP).")
+    nummer, woorden, waarschuwingen = await _herken_afbeelding(bestand, herkenner)
+    return {"nummer": nummer, "woorden": woorden, "waarschuwingen": waarschuwingen}
+
+
+@app.put("/api/weken/{nummer}", response_model=Week)
+def sla_week_op(nummer: Annotated[int, Path(ge=1)], week: WeekOpslaan, conn: Conn):
+    """Maakt een week aan of vervangt ze, met woorden als JSON (bv. na /api/weken/herken)."""
+    woorden = [w.model_dump() for w in week.woorden]
+    db.sla_week_op(conn, nummer, (week.titel or "").strip() or None, woorden)
     return db.haal_week(conn, nummer)
 
 

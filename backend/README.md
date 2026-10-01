@@ -34,6 +34,7 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 | `app/main.py` | Endpoints (FastAPI) |
 | `app/db.py` | SQLite-tabellen en queries |
 | `app/woordenlijst.py` | CSV inlezen (ook `;`-CSV uit Excel) |
+| `app/herkenning.py` | Woordenlijst lezen uit een screenshot/foto met Claude (vision) |
 | `app/dictee.py` | Zinnen laten maken door Claude + controleren + opnieuw vragen |
 | `app/pinyin.py` | Pinyin berekenen (eigen lijst eerst, anders `pypinyin`) en onbekende tekens zoeken |
 | `app/config.py` | Instellingen uit `.env` |
@@ -45,3 +46,13 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 3. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
    Afgekeurde zinnen worden tot 2 keer opnieuw gevraagd; lukt het niet, dan komt er een waarschuwing.
 4. De pinyin wordt door de backend berekend, niet door de AI.
+
+## Woordenlijst uit een screenshot
+
+1. De afbeelding wordt gecontroleerd en zo nodig verkleind (Pillow).
+2. Claude (standaard `claude-opus-5-5`, instelbaar met `CLAUDE_MODEL_HERKENNING`) geeft de woorden
+   terug als JSON: alleen wat op de afbeelding staat.
+3. Ontbrekende pinyin berekent de backend met `pypinyin`. Een ontbrekende betekenis vult de AI aan;
+   beide komen als waarschuwing terug, zodat je ze kan nakijken.
+4. Weigert het model de vraag (veiligheidsfilter), dan probeert de API automatisch een ander model
+   (`fallbacks: "default"`).

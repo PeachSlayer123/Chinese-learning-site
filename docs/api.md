@@ -31,6 +31,16 @@ type WeekSamenvatting = {
 
 type Week = WeekSamenvatting & { woorden: Woord[] }
 
+type WeekNaUpload = Week & { waarschuwingen: string[] }  // [] bij een CSV
+
+type NieuwWoord = { hanzi: string; pinyin: string; betekenis: string }
+
+type HerkendeWeek = {
+  nummer: number | null         // weeknummer als dat op de afbeelding stond
+  woorden: NieuwWoord[]
+  waarschuwingen: string[]      // bv. "Geen pinyin op de afbeelding, automatisch berekend voor: 老师"
+}
+
 type Zin = {
   nr: number                    // 1, 2, 3, ...
   hanzi: string                 // "我在学习中文。"
@@ -64,7 +74,9 @@ type DicteeSamenvatting = { id: number; week: number; aangemaakt_op: string; aan
 
 | Methode | Pad | Body | Antwoord |
 |---|---|---|---|
-| `POST` | `/api/weken` | multipart: `bestand` (CSV, verplicht), `nummer` (int, optioneel), `titel` (optioneel), `vervang` (`true`/`false`, optioneel) | `201 Week` |
+| `POST` | `/api/weken` | multipart: `bestand` (CSV **of afbeelding**, verplicht), `nummer` (int, optioneel), `titel` (optioneel), `vervang` (`true`/`false`, optioneel) | `201 WeekNaUpload` |
+| `POST` | `/api/weken/herken` | multipart: `bestand` (afbeelding) | `200 HerkendeWeek` (**niet** opgeslagen) |
+| `PUT` | `/api/weken/{nummer}` | JSON `{"titel": "Les 4" \| null, "woorden": NieuwWoord[]}` (min. 1 woord) | `200 Week` (maakt aan of vervangt) |
 | `GET` | `/api/weken` | – | `200 WeekSamenvatting[]` (gesorteerd op nummer) |
 | `GET` | `/api/weken/{nummer}` | – | `200 Week` / `404` |
 | `DELETE` | `/api/weken/{nummer}` | – | `204` / `404` |
@@ -75,6 +87,17 @@ Upload-details:
 - Geen `nummer` meegegeven? Dan haalt de backend het uit de bestandsnaam (`week-03.csv` → 3).
 - Bestaat de week al: `409`, tenzij `vervang=true` (dan wordt de lijst vervangen).
 - Ongeldige CSV: `422` met uitleg in `detail`.
+
+Screenshot/foto van de woordenlijst:
+- Formaten: PNG, JPG, WEBP, GIF (max. 20 MB; grote foto's verkleint de backend zelf). HEIC (iPhone) werkt niet.
+- Herkend aan `content-type: image/*` of de extensie.
+- Claude leest de woorden uit de afbeelding (duurt ~5-20 s, toon een laadindicator).
+  Ontbreekt de pinyin, dan berekent de backend die; ontbreekt de betekenis, dan vult de AI ze aan.
+  Beide komen in `waarschuwingen`: **toon die aan de gebruiker**.
+- Weeknummer: `nummer` uit het formulier > bestandsnaam > weeknummer op de afbeelding.
+- Fouten: `503` geen API-key (CSV werkt wel nog), `502` AI-fout, `422` geen afbeelding/geen woorden gevonden.
+- **Aanbevolen flow:** `POST /api/weken/herken` → woorden in een bewerkbare tabel tonen →
+  gebruiker verbetert → `PUT /api/weken/{nummer}`. Snelle flow zonder nakijken: `POST /api/weken` met de afbeelding.
 
 ### Dictees
 
