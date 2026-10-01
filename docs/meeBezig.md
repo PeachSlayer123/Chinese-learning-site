@@ -6,15 +6,16 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- 🔨 Woordenlijst uploaden als **screenshot/foto** (Claude leest de woorden uit de afbeelding).
-  Contract wordt uitgebreid in `docs/api.md` (frontend krijgt een bericht).
+- ⏸️ Niets: screenshot-upload is klaar en gemerged. Wacht op feedback van de frontend.
 
 ### Hierna
-- Dictee testen met een echte API-key (`.env` aanmaken) en de prompt bijsturen
+- Dictee én screenshot-herkenning testen met een echte API-key (`.env` aanmaken) en de prompts bijsturen
 - `POST /api/dictees/{id}/resultaat`: fouten bijhouden (fase 1, optioneel)
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-10-02: Woordenlijst uploaden als screenshot/foto (`POST /api/weken` met afbeelding,
+  `POST /api/weken/herken`, `PUT /api/weken/{nummer}`). 20 tests
 - 2026-10-02: Basis-backend: upload/opvragen/verwijderen van weken, woorden, dictees genereren
   via Claude met controle en pinyin via `pypinyin`. 10 tests (`backend/README.md`)
 - 2026-10-02: API-contract (`docs/api.md`) en samenwerkingsafspraken (`docs/samenwerking.md`)
