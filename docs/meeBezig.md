@@ -26,7 +26,10 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Frontend (terminal 2, hoofdmap)
 
 ### Nu bezig
-- (vult de frontend-terminal zelf in)
+- 2026-10-02: Frontend-basis in `frontend/` (Svelte 5 + Vite, JavaScript): tabbladen Dictee / Weken / Uploaden
+  gekoppeld aan de echte API, ontwerp volgens het prototype (田字格-vakjes).
+  Code staat erin en bouwt; alle API-calls getest via de Vite-proxy. **Nog te doen:** nakijken in Chrome
+  (wacht op Claude in Chrome na een herstart van de terminal)
 
 ### Klaar
 -

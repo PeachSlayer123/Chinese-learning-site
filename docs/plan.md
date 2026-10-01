@@ -33,7 +33,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 ### Fase 0: Setup
 - [x] Repo-structuur en docs
 - [ ] Tech stack kiezen (backend gekozen: FastAPI + SQLite)
-- [ ] Backend en frontend die "hello world" doen (backend ✅ 2026-10-02, frontend nog niet)
+- [x] Backend en frontend die "hello world" doen (backend ✅ 2026-10-02, frontend ✅ 2026-10-02)
 
 ### Fase 1: MVP (dictee)
 - [x] Woordenlijst uploaden (CSV) en opslaan (backend; scherm in frontend nog te doen)
@@ -58,7 +58,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 | Vraag | Opties | Keuze |
 |---|---|---|
 | Backend | Python (FastAPI) / Node | Python (FastAPI) |
-| Frontend | React / Svelte / plain HTML+JS | ? |
+| Frontend | React / Svelte / plain HTML+JS | Svelte 5 + Vite (JavaScript) |
 | Database | SQLite (aanbevolen voor 1 gebruiker) | SQLite |
 | Uploadformaat | CSV / Excel / tekst / foto van de lijst | CSV + screenshot/foto (via AI) |
 | Schrift | Vereenvoudigd / traditioneel | ? |
