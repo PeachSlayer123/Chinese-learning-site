@@ -37,10 +37,10 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 
 ### Fase 1: MVP (dictee)
 - [x] Woordenlijst uploaden (CSV) en opslaan (backend; scherm in frontend nog te doen)
-- [x] Woordenlijst uploaden als **screenshot/foto**: AI herkent hanzi, pinyin en betekenis (backend ✅; nog niet getest met echte API-key)
+- [x] Woordenlijst uploaden als **screenshot/foto**: AI herkent hanzi, pinyin en betekenis (backend ✅ 2026-10-02, getest met echte API)
 - [ ] Herkende woorden nakijken/verbeteren vóór het opslaan (frontend)
 - [ ] Lijst van alle weken/woorden bekijken
-- [x] Dictee genereren via de Claude API (backend; nog niet getest met echte API-key)
+- [x] Dictee genereren via de Claude API (backend ✅ 2026-10-02, getest met echte API)
 - [ ] Pinyin tonen → oplossing tonen
 - [ ] Lokaal draaien
 
