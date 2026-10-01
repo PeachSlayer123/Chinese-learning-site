@@ -42,11 +42,7 @@
       if (o === 'fout' && foute[nr]?.length) r.foute_woorden = foute[nr]
       return r
     })
-    // De backend weigert een lege lijst; alles terug uitgevinkt = niets versturen
-    if (!zinnen.length) {
-      opslag = ''
-      return
-    }
+    // Een lege lijst (alles terug uitgevinkt) wist het resultaat op de server
     const versie = ++opslagVersie
     opslag = 'bezig'
     try {
