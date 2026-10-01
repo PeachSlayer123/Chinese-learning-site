@@ -29,18 +29,31 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Frontend (terminal 2, hoofdmap)
 
 ### Nu bezig
-- 2026-10-02: Frontend-basis in `frontend/` (Svelte 5 + Vite, JavaScript): tabbladen Dictee / Weken / Uploaden
-  gekoppeld aan de echte API, ontwerp volgens het prototype (田字格-vakjes).
-  Code staat erin en bouwt; alle API-calls getest via de Vite-proxy. **Nog te doen:** nakijken in Chrome
-  (wacht op Claude in Chrome na een herstart van de terminal)
-- 2026-10-02: Dictee-resultaat gekoppeld: goed/fout per zin en foute woorden aanduiden worden opgeslagen
-  (`PUT /api/dictees/{id}/resultaat`), resultaat wordt teruggezet bij het laden, `keer_fout` in de woordentabel bij Weken
+- ⏸️ Niets. Volgende sessie: start bij "Hierna".
+
+### Hierna
+- Grondig nakijken in Chrome (gsm- en computerbreedte, licht/donker) met de Claude-extensie en de
+  lus uit `werkwijze.md` §4. Dat is nog niet gebeurd; de gebruiker heeft de app wel zelf geprobeerd ("werkt redelijk prima")
+- Lijst van eerdere dictees per week tonen (`GET /api/dictees?week=N` geeft al `aantal_goed`)
+- Printversie van een dictee (alleen pinyin + genummerde lijnen); afspreken met de backend
+- PWA (installeerbaar op de gsm)
+- Eventueel: stijl overnemen van een site die de gebruiker mooi vindt (via Chrome)
 
 ### Klaar
--
+- 2026-10-02: Alles uitvinken wist het resultaat (`{"zinnen": []}`)
+- 2026-10-02: Dictee-resultaat gekoppeld: goed/fout per zin en foute woorden aanduiden worden opgeslagen
+  (`PUT /api/dictees/{id}/resultaat`), resultaat wordt teruggezet bij het laden, `keer_fout` in de woordentabel bij Weken
+- 2026-10-02: Frontend-basis in `frontend/` (Svelte 5 + Vite, JavaScript): tabbladen Dictee / Weken / Uploaden
+  gekoppeld aan de echte API, ontwerp volgens het klikbare prototype (田字格-vakjes). Zie `frontend/README.md`
 
 ## Algemeen klaar
 - 2026-10-01: Repo-structuur en docs opgezet
 
 ## Notities / problemen
--
+- Opstarten op een nieuw toestel en elke dag: [`opstarten.md`](opstarten.md)
+- `.env` (API-key) en `data/app.db` (alle woordenlijsten en dictees) staan **niet** in git.
+  Op een ander toestel: opnieuw een `.env` maken en `app.db` meekopiëren als je je data wilt houden
+- Op de eerste pc staat Node in `D:\` (D:
+ode.exe). Terminals die vóór de installatie gestart zijn, vinden het niet
+- `uvicorn --reload` laadt nieuwe backend-code soms niet; dan de backend helemaal herstarten
+- De eerste API-key (`sk-ant-usr-…dgAA`) werkte niet (geen workspace) en staat in een chatgesprek: intrekken in de Console

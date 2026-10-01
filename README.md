@@ -25,17 +25,22 @@ Zie [`docs/plan.md`](docs/plan.md) voor het volledige plan.
 ├── docs/
 │   ├── plan.md        # Doelen, features, roadmap
 │   ├── ideeen.md      # Losse ideeën voor later
-│   └── meeBezig.md    # Waar ik nu mee bezig ben
+│   ├── meeBezig.md    # Waar we gebleven zijn + volgende stappen
+│   ├── opstarten.md   # Nieuw toestel instellen en de app starten
+│   ├── api.md         # API-contract backend ↔ frontend
+│   ├── samenwerking.md # Twee Claude-terminals tegelijk
+│   └── werkwijze.md   # Vaste regels voor elke Claude-sessie
 ├── .env.example       # Voorbeeld van de nodige omgevingsvariabelen
 └── CLAUDE.md          # Context voor Claude Code
 ```
 
 ## Aan de slag
 
-> De tech stack ligt nog niet vast, dus de opstartinstructies volgen later.
+Stack: **FastAPI + SQLite** (backend) en **Svelte 5 + Vite** (frontend).
+Alle stappen (installeren, `.env`, backend en frontend starten) staan in [`docs/opstarten.md`](docs/opstarten.md).
 
-1. Kopieer `.env.example` naar `.env` en vul je eigen Claude API-key in.
-2. **Commit `.env` nooit.** Hij staat al in `.gitignore`.
+- **Commit `.env` nooit.** Hij staat al in `.gitignore`.
+- Je woordenlijsten en dictees staan in `data/app.db`, ook niet in git.
 
 ## Veiligheid
 
