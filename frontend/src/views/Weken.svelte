@@ -17,12 +17,11 @@
     }
     open = n
     fout = null
-    if (!details[n]) {
-      try {
-        details[n] = await api.week(n)
-      } catch (e) {
-        fout = e.message
-      }
+    // altijd vers ophalen: keer_fout verandert na elk nagekeken dictee
+    try {
+      details[n] = await api.week(n)
+    } catch (e) {
+      fout = e.message
     }
   }
 
@@ -85,10 +84,15 @@
         {#if details[w.nummer]}
           <div class="tabel-wrap">
             <table>
-              <thead><tr><th>Hanzi</th><th>Pinyin</th><th>Betekenis</th></tr></thead>
+              <thead><tr><th>Hanzi</th><th>Pinyin</th><th>Betekenis</th><th>Fout</th></tr></thead>
               <tbody>
                 {#each details[w.nummer].woorden as woord (woord.id)}
-                  <tr><td class="hz">{woord.hanzi}</td><td class="py">{woord.pinyin}</td><td>{woord.betekenis}</td></tr>
+                  <tr>
+                    <td class="hz">{woord.hanzi}</td><td class="py">{woord.pinyin}</td><td>{woord.betekenis}</td>
+                    <td>
+                      {#if woord.keer_fout}<span class="keer-fout" title="{woord.keer_fout} keer fout in nagekeken dictees">{woord.keer_fout}×</span>{/if}
+                    </td>
+                  </tr>
                 {/each}
               </tbody>
             </table>

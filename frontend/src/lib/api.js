@@ -59,5 +59,7 @@ export const api = {
   maakDictee: (week, aantal_zinnen) => verzoek('/dictees', json('POST', { week, aantal_zinnen })),
   dictees: (week) => verzoek(week == null ? '/dictees' : `/dictees?week=${week}`),
   dictee: (id) => verzoek(`/dictees/${id}`),
+  /** zinnen: [{ nr, goed, foute_woorden? }], overschrijft het vorige resultaat */
+  slaResultaatOp: (id, zinnen) => verzoek(`/dictees/${id}/resultaat`, json('PUT', { zinnen })),
   verwijderDictee: (id) => verzoek(`/dictees/${id}`, { method: 'DELETE' }),
 }

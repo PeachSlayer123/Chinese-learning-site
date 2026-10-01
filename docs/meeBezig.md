@@ -32,6 +32,8 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   gekoppeld aan de echte API, ontwerp volgens het prototype (田字格-vakjes).
   Code staat erin en bouwt; alle API-calls getest via de Vite-proxy. **Nog te doen:** nakijken in Chrome
   (wacht op Claude in Chrome na een herstart van de terminal)
+- 2026-10-02: Dictee-resultaat gekoppeld: goed/fout per zin en foute woorden aanduiden worden opgeslagen
+  (`PUT /api/dictees/{id}/resultaat`), resultaat wordt teruggezet bij het laden, `keer_fout` in de woordentabel bij Weken
 
 ### Klaar
 -

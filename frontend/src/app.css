@@ -114,6 +114,11 @@ ol.zinnen { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 
 .chip { font-size: 13px; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 .chip .zh { font-family: var(--f-hanzi); }
 .chip.warn { background: var(--warn-soft); color: var(--warn); }
+button.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+button.chip:hover { border-color: var(--bad); }
+button.chip[aria-pressed="true"] { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.keer-fout { display: inline-block; min-width: 1.6em; text-align: center; font-size: 12.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); font-variant-numeric: tabular-nums; }
+.opslag { font-size: 13px; color: var(--muted); }
 .zin-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .zin-actions .zelf { margin-left: auto; display: flex; gap: 6px; align-items: center; font-size: 13.5px; color: var(--muted); }
 .btn.goed[aria-pressed="true"] { background: var(--good-soft); border-color: var(--good); color: var(--good); }

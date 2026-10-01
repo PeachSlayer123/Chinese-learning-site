@@ -1,8 +1,8 @@
 <script>
   import { tekenRollen, kanVoorlezen, leesVoor } from '../lib/tekens.js'
 
-  /** zin: Zin uit docs/api.md, open: oplossing zichtbaar, oordeel: '' | 'goed' | 'fout' */
-  let { zin, open, oordeel, ontoggle, onoordeel } = $props()
+  /** zin: Zin uit docs/api.md, open: oplossing zichtbaar, oordeel: '' | 'goed' | 'fout', foute: foute weekwoorden */
+  let { zin, open, oordeel, foute = [], ontoggle, onoordeel, onfoutwoord } = $props()
 
   const tekens = $derived(tekenRollen(zin))
 </script>
@@ -21,10 +21,19 @@
       <div class="oplossing">
         <p class="vertaling">{zin.vertaling}</p>
         <div class="chips">
-          <span class="eyebrow">Woorden van de week</span>
-          {#each zin.woorden_van_de_week as woord (woord)}
-            <span class="chip"><span class="zh">{woord}</span></span>
-          {/each}
+          {#if oordeel === 'fout' && zin.woorden_van_de_week.length}
+            <span class="eyebrow">Welk woord had je fout?</span>
+            {#each zin.woorden_van_de_week as woord (woord)}
+              <button type="button" class="chip" aria-pressed={foute.includes(woord)} onclick={() => onfoutwoord(woord)}>
+                <span class="zh">{woord}</span>
+              </button>
+            {/each}
+          {:else}
+            <span class="eyebrow">Woorden van de week</span>
+            {#each zin.woorden_van_de_week as woord (woord)}
+              <span class="chip"><span class="zh">{woord}</span></span>
+            {/each}
+          {/if}
           {#each zin.onbekende_tekens as teken (teken)}
             <span class="chip warn">onbekend: <span class="zh">{teken}</span></span>
           {/each}

@@ -12,6 +12,9 @@
   let fout = $state(null)
   let onthuld = $state({})
   let oordelen = $state({})
+  let foute = $state({})
+  let opslag = $state('')
+  let opslagVersie = 0
 
   const weekInfo = $derived(stand.weken.find((w) => w.nummer === week))
   const aiUit = $derived(stand.health && !stand.health.ai_beschikbaar)
@@ -19,19 +22,51 @@
   const aantalGoed = $derived(Object.values(oordelen).filter((o) => o === 'goed').length)
   const aantalBeoordeeld = $derived(Object.keys(oordelen).length)
 
-  function reset() {
+  // Nieuw of geladen dictee tonen; een eerder resultaat wordt teruggezet en die zinnen staan open
+  function zetDictee(d) {
+    dictee = d
     onthuld = {}
     oordelen = {}
+    foute = {}
+    opslag = ''
+    for (const r of d?.resultaat ?? []) {
+      onthuld[r.nr] = true
+      oordelen[r.nr] = r.goed ? 'goed' : 'fout'
+      if (r.foute_woorden.length) foute[r.nr] = [...r.foute_woorden]
+    }
+  }
+
+  async function bewaarResultaat() {
+    const zinnen = Object.entries(oordelen).map(([nr, o]) => {
+      const r = { nr: Number(nr), goed: o === 'goed' }
+      if (o === 'fout' && foute[nr]?.length) r.foute_woorden = foute[nr]
+      return r
+    })
+    // De backend weigert een lege lijst; alles terug uitgevinkt = niets versturen
+    if (!zinnen.length) {
+      opslag = ''
+      return
+    }
+    const versie = ++opslagVersie
+    opslag = 'bezig'
+    try {
+      await api.slaResultaatOp(dictee.id, zinnen)
+      if (versie === opslagVersie) opslag = 'ok'
+    } catch (e) {
+      if (versie === opslagVersie) {
+        opslag = ''
+        fout = 'Je resultaat is niet opgeslagen: ' + e.message
+      }
+    }
   }
 
   async function laadLaatste(n) {
     fout = null
-    dictee = null
-    reset()
+    zetDictee(null)
     ophalen = true
     try {
       const lijst = await api.dictees(n)
-      if (lijst.length && week === n) dictee = await api.dictee(lijst[0].id)
+      if (lijst.length && week === n) zetDictee(await api.dictee(lijst[0].id))
     } catch (e) {
       fout = e.message
     } finally {
@@ -43,9 +78,7 @@
     laden = true
     fout = null
     try {
-      const nieuw = await api.maakDictee(week, aantal)
-      dictee = nieuw
-      reset()
+      zetDictee(await api.maakDictee(week, aantal))
     } catch (e) {
       fout = e.status === 503 ? 'De AI is niet beschikbaar: er staat geen API-key in .env.' : e.message
     } finally {
@@ -65,11 +98,22 @@
 
   function beoordeel(nr, oordeel) {
     if (oordelen[nr] === oordeel) {
-      const { [nr]: _, ...rest } = oordelen
-      oordelen = rest
+      delete oordelen[nr]
+      delete foute[nr]
     } else {
       oordelen[nr] = oordeel
+      if (oordeel === 'goed') delete foute[nr]
     }
+    fout = null
+    bewaarResultaat()
+  }
+
+  function foutWoord(nr, woord) {
+    const lijst = foute[nr] ?? []
+    foute[nr] = lijst.includes(woord) ? lijst.filter((w) => w !== woord) : [...lijst, woord]
+    oordelen[nr] = 'fout'
+    fout = null
+    bewaarResultaat()
   }
 
   // Eerste week kiezen zodra de weken geladen zijn
@@ -127,6 +171,11 @@
     <button type="button" class="btn primary" onclick={genereer} disabled={laden || aiUit}>Nieuw dictee</button>
     <span class="spacer"></span>
     {#if dictee && !laden}
+      {#if opslag === 'bezig'}
+        <span class="opslag" role="status">Opslaan…</span>
+      {:else if opslag === 'ok'}
+        <span class="opslag" role="status">Opgeslagen</span>
+      {/if}
       {#if aantalBeoordeeld}
         <span class="score">{aantalGoed} van {dictee.zinnen.length} goed</span>
       {/if}
@@ -167,8 +216,10 @@
           {zin}
           open={!!onthuld[zin.nr]}
           oordeel={oordelen[zin.nr] ?? ''}
+          foute={foute[zin.nr] ?? []}
           ontoggle={() => (onthuld[zin.nr] = !onthuld[zin.nr])}
           onoordeel={(o) => beoordeel(zin.nr, o)}
+          onfoutwoord={(w) => foutWoord(zin.nr, w)}
         />
       {/each}
     </ol>
