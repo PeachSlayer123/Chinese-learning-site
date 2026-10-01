@@ -67,6 +67,17 @@ def test_resultaat_opnieuw_sturen_overschrijft(client, dictee):
     assert keer_fout(client)["学习"] == 0
 
 
+def test_lege_lijst_wist_resultaat(client, dictee):
+    url = f"/api/dictees/{dictee['id']}/resultaat"
+    client.put(url, json={"zinnen": [{"nr": 1, "goed": False}]})
+    assert keer_fout(client)["学习"] == 1
+
+    r = client.put(url, json={"zinnen": []})
+    assert r.status_code == 200 and r.json()["resultaat"] is None
+    assert client.get("/api/dictees").json()[0]["aantal_goed"] is None
+    assert keer_fout(client)["学习"] == 0
+
+
 def test_zin_met_foute_woorden_is_fout(client, dictee):
     r = client.put(
         f"/api/dictees/{dictee['id']}/resultaat",
@@ -78,7 +89,6 @@ def test_zin_met_foute_woorden_is_fout(client, dictee):
 @pytest.mark.parametrize(
     "zinnen",
     [
-        [],  # leeg
         [{"nr": 9, "goed": True}],  # onbekende zin
         [{"nr": 1, "goed": True}, {"nr": 1, "goed": False}],  # dubbel
         [{"nr": 1, "goed": False, "foute_woorden": ["朋友"]}],  # woord staat niet in de zin

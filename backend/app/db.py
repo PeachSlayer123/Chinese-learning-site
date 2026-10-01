@@ -181,10 +181,11 @@ def verwijder_dictee(conn: sqlite3.Connection, dictee_id: int) -> bool:
 
 
 def sla_resultaat_op(conn: sqlite3.Connection, dictee_id: int, resultaat: list[dict]) -> None:
+    """Een lege lijst wist het resultaat (terug naar 'nog niet nagekeken')."""
     with conn:
         conn.execute(
             "UPDATE dictees SET resultaat = ? WHERE id = ?",
-            (json.dumps(resultaat, ensure_ascii=False), dictee_id),
+            (json.dumps(resultaat, ensure_ascii=False) if resultaat else None, dictee_id),
         )
 
 

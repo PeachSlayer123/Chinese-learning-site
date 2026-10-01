@@ -125,7 +125,7 @@ class ZinResultaat(BaseModel):
 
 
 class ResultaatAanvraag(BaseModel):
-    zinnen: list[ZinResultaat] = Field(min_length=1)
+    zinnen: list[ZinResultaat]  # [] = resultaat wissen
 
 
 class Dictee(BaseModel):

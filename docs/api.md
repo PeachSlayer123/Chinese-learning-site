@@ -128,6 +128,7 @@ Screenshot/foto van de woordenlijst:
 
 Resultaat (wat had ik fout?):
 - Opnieuw sturen **overschrijft** het vorige resultaat. Niet meegestuurde zinnen = niet nagekeken.
+- `{"zinnen": []}` **wist** het resultaat (`resultaat` en `aantal_goed` → `null`, `keer_fout` telt het niet meer mee).
 - `foute_woorden` is optioneel. Een foute zin zonder `foute_woorden` telt als fout voor alle
   weekwoorden in die zin (`woorden_van_de_week`). Een zin met `foute_woorden` is altijd fout.
 - `422` bij een onbekend `nr`, een dubbel `nr`, of een fout woord dat niet in die zin staat.
