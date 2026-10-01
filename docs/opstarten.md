@@ -11,8 +11,9 @@ Hoe je de app draait: op een nieuw toestel (bv. je laptop) en daarna elke dag.
 | Python-pakketten | `backend/.venv/` | Opnieuw installeren (stap 4) |
 | Node-pakketten | `frontend/node_modules/` | Opnieuw installeren (stap 5) |
 
-> Tip: zet `data/app.db` bv. op een USB-stick of in de cloud als je op twee toestellen wilt werken.
-> Later, als de app op de Raspberry Pi draait, staat de data daar en is dit niet meer nodig.
+> **Nog op te lossen:** hoe de data op meerdere toestellen hetzelfde blijft (een server, de Raspberry Pi,
+> of synchroniseren). Dat bespreken we in een volgende sessie; zie "Open punten" in `meeBezig.md`.
+> Tot dan: kopieer `data/app.db` mee (USB-stick, cloud) als je je woordenlijsten wilt houden.
 
 ## Nieuw toestel: eenmalig
 
@@ -23,6 +24,7 @@ Hoe je de app draait: op een nieuw toestel (bv. je laptop) en daarna elke dag.
    cd Chinees
    ```
 3. **API-key:** kopieer `.env.example` naar `.env` en vul `ANTHROPIC_API_KEY=` in.
+   **Nog te doen op de laptop!** Claude moet je hier aan het begin van de sessie expliciet aan herinneren (zie `CLAUDE.md`).
    Gebruik een key die bij een workspace hoort; anders weigert de API met een fout over `anthropic-workspace-id`.
 4. **Backend:**
    ```bash

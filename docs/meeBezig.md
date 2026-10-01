@@ -46,6 +46,13 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 - 2026-10-02: Frontend-basis in `frontend/` (Svelte 5 + Vite, JavaScript): tabbladen Dictee / Weken / Uploaden
   gekoppeld aan de echte API, ontwerp volgens het klikbare prototype (田字格-vakjes). Zie `frontend/README.md`
 
+## Open punten voor de volgende sessie (eerst bespreken met de gebruiker)
+- **API-key op de laptop:** `.env` bestaat daar nog niet. Claude zegt dit expliciet aan het begin van de sessie,
+  en de gebruiker maakt `.env` aan (zie `docs/opstarten.md`, stap 3)
+- **Data op meerdere toestellen:** `data/app.db` staat alleen op de pc. Een oplossing zoeken zodat de woordenlijsten
+  overal hetzelfde zijn. Opties om te bespreken: de backend vroeg op de Raspberry Pi zetten (één server, bereikbaar
+  via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap)
+
 ## Algemeen klaar
 - 2026-10-01: Repo-structuur en docs opgezet
 

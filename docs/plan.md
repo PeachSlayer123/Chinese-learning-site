@@ -46,6 +46,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 - [ ] Lokaal draaien
 
 ### Fase 2: Op de Pi
+- [ ] Oplossing voor de data op meerdere toestellen (`data/app.db`): eerst bespreken, bv. de backend op de Pi als centrale server
 - [ ] Docker-setup
 - [ ] Draaien op de Raspberry Pi
 - [ ] Veilige toegang (Tailscale)
