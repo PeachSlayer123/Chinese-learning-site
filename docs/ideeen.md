@@ -14,7 +14,7 @@ Losse ideeën voor later. Nog niet gepland, gewoon verzamelen.
 
 ## App
 - Foto van mijn handgeschreven dictee uploaden → AI verbetert het
-- Foto van de woordenlijst uploaden → automatisch omzetten naar CSV
+- ~~Foto van de woordenlijst uploaden → automatisch omzetten~~ → staat nu in `plan.md` (fase 1)
 - Statistieken: welke woorden ken ik goed / slecht
 - PWA: als app op mijn gsm
 - Woordenboek opzoeken via CC-CEDICT

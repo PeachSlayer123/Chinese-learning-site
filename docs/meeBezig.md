@@ -6,7 +6,8 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- ⏸️ Basis-backend is klaar en gemerged in `main`. Wacht op feedback van de frontend.
+- 🔨 Woordenlijst uploaden als **screenshot/foto** (Claude leest de woorden uit de afbeelding).
+  Contract wordt uitgebreid in `docs/api.md` (frontend krijgt een bericht).
 
 ### Hierna
 - Dictee testen met een echte API-key (`.env` aanmaken) en de prompt bijsturen
