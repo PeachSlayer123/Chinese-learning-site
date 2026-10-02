@@ -54,6 +54,8 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap)
 
 ## Algemeen klaar
+- 2026-10-02: Laptop opgezet in `C:\Users\alexc\FASE3\Chinees` (Python 3.14.3, Node 22.19 in `PATH`):
+  backend-venv + `npm install`. 34 tests groen, frontend bouwt. `.env` en `app.db` ontbreken daar nog
 - 2026-10-01: Repo-structuur en docs opgezet
 
 ## Notities / problemen
