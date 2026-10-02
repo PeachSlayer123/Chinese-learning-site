@@ -51,9 +51,12 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   en de gebruiker maakt `.env` aan (zie `docs/opstarten.md`, stap 3)
 - **Data op meerdere toestellen:** `data/app.db` staat alleen op de pc. Een oplossing zoeken zodat de woordenlijsten
   overal hetzelfde zijn. Opties om te bespreken: de backend vroeg op de Raspberry Pi zetten (één server, bereikbaar
-  via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap)
+  via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap).
+  Voorkeur van de gebruiker: een eigen "cloud" thuis op de Pi die de data bijhoudt en de site live zet (zie `ideeen.md`)
 
 ## Algemeen klaar
+- 2026-10-02: Laptop getest: backend op poort 8001 + frontend starten werkt, app laadt in Chrome zonder
+  console-fouten, "AI beschikbaar" (key werkt). `app.db` op de laptop is nog leeg (geen woordenlijsten)
 - 2026-10-02: Laptop opgezet in `C:\Users\alexc\FASE3\Chinees` (Python 3.14.3, Node 22.19 in `PATH`):
   backend-venv + `npm install`. 34 tests groen, frontend bouwt. `.env` en `app.db` ontbreken daar nog
 - 2026-10-01: Repo-structuur en docs opgezet

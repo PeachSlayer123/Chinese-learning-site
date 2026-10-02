@@ -18,3 +18,8 @@ Losse ideeën voor later. Nog niet gepland, gewoon verzamelen.
 - Statistieken: welke woorden ken ik goed / slecht
 - PWA: als app op mijn gsm
 - Woordenboek opzoeken via CC-CEDICT
+
+## Hosting en data
+- **Eigen "cloud" thuis op de Raspberry Pi:** de Pi draait de backend, houdt alle data bij (`app.db`) en zet
+  uiteindelijk ook de website live. Zo zijn de woordenlijsten en dictees op elk toestel (pc, laptop, gsm) hetzelfde.
+  Hangt samen met het open punt "Data op meerdere toestellen" in `meeBezig.md`
