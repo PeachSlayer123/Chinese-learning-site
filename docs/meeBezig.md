@@ -47,25 +47,29 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   gekoppeld aan de echte API, ontwerp volgens het klikbare prototype (田字格-vakjes). Zie `frontend/README.md`
 
 ## Open punten voor de volgende sessie (eerst bespreken met de gebruiker)
-- **API-key op de laptop:** `.env` bestaat daar nog niet. Claude zegt dit expliciet aan het begin van de sessie,
-  en de gebruiker maakt `.env` aan (zie `docs/opstarten.md`, stap 3)
-- **Data op meerdere toestellen:** `data/app.db` staat alleen op de pc. Een oplossing zoeken zodat de woordenlijsten
-  overal hetzelfde zijn. Opties om te bespreken: de backend vroeg op de Raspberry Pi zetten (één server, bereikbaar
-  via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap).
-  Voorkeur van de gebruiker: een eigen "cloud" thuis op de Pi die de data bijhoudt en de site live zet (zie `ideeen.md`)
+- **Cloudflare Tunnel + Access** (stap 7 in `deploy/README.md`): de gebruiker kiest Cloudflare. Eerst vragen of er
+  al een domeinnaam is; publiek gaat alleen **met login** (Access, alleen het eigen Gmail-adres), want de API-key kost geld
+- **Data:** opgelost, de Pi is de centrale server. De gebruiker geeft de woordenlijst van week 1 opnieuw in op
+  <http://192.168.1.45:8080>. De `app.db` op pc en laptop is alleen nog voor lokaal ontwikkelen
+- De oude API-key (`…dgAA`) intrekken in de Console, als dat nog niet gebeurd is
 
 ## Pi (hosting, fase 2)
 
-### Nu bezig
-- 2026-10-10: Toegang tot de Pi herstellen. De gebruiker is gebruikersnaam en wachtwoord vergeten en reset ze
-  via scherm + toetsenbord of `init=/bin/sh` in `cmdline.txt` op de SD-kaart. **Niet opnieuw flashen:
-  Home Assistant draait op deze Pi.** Daarna: SSH-sleutel van de pc erop zetten
+Alles over de Pi (adres, Home Assistant, commando's, stappenplan): [`deploy/README.md`](../deploy/README.md).
+**Niet opnieuw flashen en `~/homeassistant` niet aanraken: Home Assistant draait op deze Pi.**
 
-### Wat we weten over de Pi
-- IP `192.168.1.45`, waarschijnlijk een Pi 4 (RAM nog onbekend), Raspberry Pi OS / Debian 13 (trixie), SSH aan
-- **Home Assistant draait erop** (poort 8123). De Chinees-app komt ernaast in Docker Compose zonder HA te raken
-- Keuzes van de gebruiker: Docker Compose; toegang "publiek op internet" (nog te beslissen: Cloudflare Tunnel +
-  Access met eigen domein, of Tailscale). Publiek kan alleen **met login** (API-key kost geld, data kan gewist worden)
+### Nu bezig
+- ⏸️ Niets. Volgende stap: Cloudflare Tunnel + Access (zodra er een domeinnaam is)
+
+### Hierna
+- Cloudflare Tunnel + Access (stap 7)
+- Backups ook buiten de Pi bewaren (stap 8)
+
+### Klaar
+- 2026-10-10: App draait op de Pi in Docker (`~/chinees`, poort 8080, container `chinees`) naast Home Assistant.
+  `Dockerfile` bouwt de frontend mee; de backend serveert ze als `FRONTEND_DIR` gezet is (lokaal verandert niets).
+  Lege database, nachtelijke backup via cron (`deploy/backup.sh`). Getest: health ok + AI beschikbaar, site en assets laden
+- 2026-10-10: Toegang tot de Pi hersteld (wachtwoord gereset, SSH-sleutel van de pc erop). Pi 4, 4 GB, Debian 13
 
 ## Algemeen klaar
 - 2026-10-02: Laptop getest: backend op poort 8001 + frontend starten werkt, app laadt in Chrome zonder

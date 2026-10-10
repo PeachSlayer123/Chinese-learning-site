@@ -46,11 +46,11 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 - [ ] Lokaal draaien
 
 ### Fase 2: Op de Pi
-- [ ] Oplossing voor de data op meerdere toestellen (`data/app.db`): eerst bespreken, bv. de backend op de Pi als centrale server
-- [ ] Docker-setup
-- [ ] Draaien op de Raspberry Pi
-- [ ] Veilige toegang (Tailscale)
-- [ ] Backups
+- [x] Oplossing voor de data op meerdere toestellen (`data/app.db`): de Pi is de centrale server ✅ 2026-10-10
+- [x] Docker-setup ✅ 2026-10-10 (zie [`deploy/README.md`](../deploy/README.md))
+- [x] Draaien op de Raspberry Pi ✅ 2026-10-10 (<http://192.168.1.45:8080>, naast Home Assistant)
+- [ ] Veilige toegang van buitenaf: Cloudflare Tunnel + Cloudflare Access (keuze gebruiker, domeinnaam nodig)
+- [x] Backups ✅ 2026-10-10 (elke nacht op de Pi; nog niet buiten de Pi)
 
 ### Fase 3: Meer leeropties
 - Zie [`ideeen.md`](ideeen.md)
@@ -64,4 +64,4 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 | Database | SQLite (aanbevolen voor 1 gebruiker) | SQLite |
 | Uploadformaat | CSV / Excel / tekst / foto van de lijst | CSV + screenshot/foto (via AI) |
 | Schrift | Vereenvoudigd / traditioneel | ? |
-| Raspberry Pi-model | 3 / 4 / 5 | ? |
+| Raspberry Pi-model | 3 / 4 / 5 | Pi 4 Model B, 4 GB (deelt met Home Assistant) |

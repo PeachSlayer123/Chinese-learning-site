@@ -1,9 +1,62 @@
-# Deploy
+# Deploy: de app op de Raspberry Pi
 
-Alles om de app op de Raspberry Pi te draaien. Komt hier later:
+De Pi is de **enige plek met data** (`app.db`). Pc, laptop en gsm gebruiken gewoon de site.
 
-- `docker-compose.yml` (of systemd-services)
-- Instellingen voor de reverse proxy (bv. Caddy)
-- Toegang van buitenaf: **Tailscale** (alleen eigen toestellen) of **Cloudflare Tunnel** met login
-- Backupscript voor de database (SD-kaarten kunnen stukgaan)
-- Stappenplan: van een verse Pi tot een draaiende app
+## De Pi
+
+| | |
+|---|---|
+| Toestel | Raspberry Pi 4 Model B, 4 GB RAM, 64 GB SD-kaart |
+| OS | Raspberry Pi OS / Debian 13 (trixie), 64-bit |
+| Adres thuis | `192.168.1.45`, gebruiker `chunrasppedro` (inloggen met SSH-sleutel) |
+| App | `~/chinees` (clone van deze repo), poort **8080** → <http://192.168.1.45:8080> |
+| Ook op de Pi | **Home Assistant** in Docker (`~/homeassistant`: `homeassistant`, `mosquitto`, `matter-server`, poort 8123) |
+
+> ⚠️ **Nooit opnieuw flashen of `~/homeassistant` aanraken.** De Chinees-app is een apart Compose-project (`chinees`).
+
+## Hoe het werkt
+
+- [`../Dockerfile`](../Dockerfile): bouwt de frontend (`npm run build`) en zet die in één image met de backend.
+  `FRONTEND_DIR` laat FastAPI de site serveren, dus alles draait op één poort.
+- [`docker-compose.yml`](docker-compose.yml): container `chinees`, `restart: unless-stopped` (start vanzelf na een herstart).
+  Leest `~/chinees/.env` en bewaart de database in `~/chinees/data/app.db`.
+- [`backup.sh`](backup.sh): elke nacht om 03:30 (cron) een kopie naar `~/chinees/data/backups/`, de laatste 14 blijven.
+
+## Dagelijks gebruik (vanaf de pc of laptop)
+
+```sh
+ssh chunrasppedro@192.168.1.45
+cd ~/chinees
+
+# Nieuwe versie uitrollen (na een push naar main)
+git pull && docker compose -f deploy/docker-compose.yml up -d --build
+
+# Status en logs
+docker ps
+docker logs -f chinees
+
+# Handmatige backup
+sh deploy/backup.sh
+```
+
+Een backup terugzetten: `docker stop chinees`, het bestand uit `data/backups/` kopiëren naar `data/app.db`, `docker start chinees`.
+
+## Stappenplan (hoe de Pi opgezet is)
+
+1. ✅ Toegang hersteld: wachtwoord gereset via `init=/bin/sh` in `cmdline.txt`, de SSH-sleutel van de pc in
+   `~/.ssh/authorized_keys`. Een nieuw toestel (bv. de laptop): eenmalig in PowerShell
+   `type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh chunrasppedro@192.168.1.45 "cat >> ~/.ssh/authorized_keys"`
+2. ✅ Docker en Compose stonden er al (voor Home Assistant)
+3. ✅ `git clone https://github.com/PeachSlayer123/Chinese-learning-site.git ~/chinees`
+4. ✅ `.env` van de pc gekopieerd (`scp`, `chmod 600`). Staat niet in git
+5. ✅ `docker compose -f deploy/docker-compose.yml up -d --build`. Begonnen met een lege database
+6. ✅ Backup-cron: `30 3 * * * sh ~/chinees/deploy/backup.sh >> ~/chinees/data/backup.log 2>&1`
+7. ⬜ **Publiek via Cloudflare Tunnel + Cloudflare Access** (login met Gmail, alleen eigen adres).
+   Nodig: een domeinnaam bij Cloudflare. Geen poorten openzetten op de router
+8. ⬜ Backups ook buiten de Pi bewaren (de backups staan nu op dezelfde SD-kaart)
+
+## Notities
+
+- De Pi-kernel ondersteunt geen geheugenlimieten voor containers (`mem_limit` wordt genegeerd).
+  De app gebruikt ±135 MB RAM; er blijft ruim genoeg over voor Home Assistant.
+- Bestanden in `data/` zijn van `root` (de container schrijft ze). Lezen kan gewoon, verwijderen kan dankzij de map-rechten.

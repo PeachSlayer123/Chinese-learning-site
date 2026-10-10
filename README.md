@@ -1,7 +1,7 @@
 # Chinese-learning-site
 
 Een persoonlijke webapp om Chinees te leren, vooral de woordjes die ik elke week moet kennen.
-De app draait later op mijn Raspberry Pi en gebruikt de Claude API als ingebouwde AI-tutor.
+De app draait op mijn Raspberry Pi (<http://192.168.1.45:8080>, zie [`deploy/README.md`](deploy/README.md)) en gebruikt de Claude API als ingebouwde AI-tutor.
 
 ## Wat de app moet kunnen
 
