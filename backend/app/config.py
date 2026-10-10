@@ -26,6 +26,11 @@ class Instellingen:
     database_pad: Path = field(
         default_factory=lambda: Path(os.getenv("DATABASE_PATH", REPO_ROOT / "data" / "app.db"))
     )
+    # Map met de gebouwde frontend (`npm run build`). Alleen gezet in Docker: dan serveert de backend
+    # ook de site, zodat alles op één poort draait. Lokaal blijft dit leeg en draait Vite apart.
+    frontend_map: Path | None = field(
+        default_factory=lambda: Path(p) if (p := os.getenv("FRONTEND_DIR")) else None
+    )
     cors_origins: list[str] = field(
         default_factory=lambda: _lijst(
             os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")

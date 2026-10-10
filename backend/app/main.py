@@ -7,6 +7,7 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Path, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from . import db
@@ -334,3 +335,10 @@ def verwijder_dictee(dictee_id: int, conn: Conn):
     if not db.verwijder_dictee(conn, dictee_id):
         raise HTTPException(404, f"Dictee {dictee_id} bestaat niet.")
     return Response(status_code=204)
+
+
+# --- Frontend (alleen in Docker) ---------------------------------------------
+# Als laatste gemount, zodat de /api-routes hierboven voorgaan.
+
+if instellingen.frontend_map and instellingen.frontend_map.is_dir():
+    app.mount("/", StaticFiles(directory=instellingen.frontend_map, html=True), name="frontend")
