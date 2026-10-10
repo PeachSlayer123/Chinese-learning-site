@@ -9,7 +9,8 @@ De Pi is de **enige plek met data** (`app.db`). Pc, laptop en gsm gebruiken gewo
 | Toestel | Raspberry Pi 4 Model B, 4 GB RAM, 64 GB SD-kaart |
 | OS | Raspberry Pi OS / Debian 13 (trixie), 64-bit |
 | Adres thuis | `192.168.1.45`, gebruiker `chunrasppedro` (inloggen met SSH-sleutel) |
-| App | `~/chinees` (clone van deze repo), poort **8080** → <http://192.168.1.45:8080> |
+| App | `~/chinees` (clone van deze repo), poort **8080** → thuis <http://192.168.1.45:8080> |
+| Overal (Tailscale) | **<https://pi.tail99d614.ts.net>** (https, alleen eigen toestellen) of <http://pi:8080>; Tailscale-IP `100.119.183.20` |
 | Ook op de Pi | **Home Assistant** in Docker (`~/homeassistant`: `homeassistant`, `mosquitto`, `matter-server`, poort 8123) |
 
 > ⚠️ **Nooit opnieuw flashen of `~/homeassistant` aanraken.** De Chinees-app is een apart Compose-project (`chinees`).
@@ -51,9 +52,17 @@ Een backup terugzetten: `docker stop chinees`, het bestand uit `data/backups/` k
 4. ✅ `.env` van de pc gekopieerd (`scp`, `chmod 600`). Staat niet in git
 5. ✅ `docker compose -f deploy/docker-compose.yml up -d --build`. Begonnen met een lege database
 6. ✅ Backup-cron: `30 3 * * * sh ~/chinees/deploy/backup.sh >> ~/chinees/data/backup.log 2>&1`
-7. ⬜ **Publiek via Cloudflare Tunnel + Cloudflare Access** (login met Gmail, alleen eigen adres).
-   Nodig: een domeinnaam bij Cloudflare. Geen poorten openzetten op de router
+7. ✅ **Tailscale** (2026-10-10): `install.sh`, `sudo tailscale up --hostname=pi`, ingelogd met het Google-account
+   van de gebruiker. `sudo tailscale serve --bg 8080` geeft https binnen het eigen netwerk (nodig voor een PWA).
+   Elk nieuw toestel: Tailscale installeren en met hetzelfde Google-account inloggen.
+   Later eventueel publiek met een eigen domein: Cloudflare Tunnel + Access (voorlopig niet gewenst)
 8. ⬜ Backups ook buiten de Pi bewaren (de backups staan nu op dezelfde SD-kaart)
+
+## Na een stroomonderbreking of verhuis
+
+Alles start vanzelf: `docker`, `tailscaled`, `cron` en `ssh` staan op *enabled*, de containers hebben
+`restart: unless-stopped` en `tailscale serve --bg` blijft bewaard. Na ±1-2 minuten is de app terug.
+Andere wifi of netwerkkabel op de nieuwe plek? Via Tailscale blijft het adres hetzelfde; het thuisadres `192.168.1.45` kan veranderen.
 
 ## Notities
 

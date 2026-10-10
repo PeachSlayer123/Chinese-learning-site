@@ -47,8 +47,7 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   gekoppeld aan de echte API, ontwerp volgens het klikbare prototype (田字格-vakjes). Zie `frontend/README.md`
 
 ## Open punten voor de volgende sessie (eerst bespreken met de gebruiker)
-- **Cloudflare Tunnel + Access** (stap 7 in `deploy/README.md`): de gebruiker kiest Cloudflare. Eerst vragen of er
-  al een domeinnaam is; publiek gaat alleen **met login** (Access, alleen het eigen Gmail-adres), want de API-key kost geld
+- **Tailscale op pc, laptop en gsm** installeren en inloggen met hetzelfde Google-account (de Pi zit er al in)
 - **Data:** opgelost, de Pi is de centrale server. De gebruiker geeft de woordenlijst van week 1 opnieuw in op
   <http://192.168.1.45:8080>. De `app.db` op pc en laptop is alleen nog voor lokaal ontwikkelen
 - De oude API-key (`…dgAA`) intrekken in de Console, als dat nog niet gebeurd is
@@ -59,13 +58,15 @@ Alles over de Pi (adres, Home Assistant, commando's, stappenplan): [`deploy/READ
 **Niet opnieuw flashen en `~/homeassistant` niet aanraken: Home Assistant draait op deze Pi.**
 
 ### Nu bezig
-- ⏸️ Niets. Volgende stap: Cloudflare Tunnel + Access (zodra er een domeinnaam is)
+- ⏸️ Niets.
 
 ### Hierna
-- Cloudflare Tunnel + Access (stap 7)
 - Backups ook buiten de Pi bewaren (stap 8)
+- Later eventueel publiek met een domein (Cloudflare Tunnel + Access); de gebruiker wil dat voorlopig niet
 
 ### Klaar
+- 2026-10-10: Tailscale op de Pi (`pi`, account van de gebruiker) + `tailscale serve`: overal bereikbaar op
+  <https://pi.tail99d614.ts.net> voor eigen toestellen. Autostart nagekeken (docker, tailscaled, cron enabled)
 - 2026-10-10: App draait op de Pi in Docker (`~/chinees`, poort 8080, container `chinees`) naast Home Assistant.
   `Dockerfile` bouwt de frontend mee; de backend serveert ze als `FRONTEND_DIR` gezet is (lokaal verandert niets).
   Lege database, nachtelijke backup via cron (`deploy/backup.sh`). Getest: health ok + AI beschikbaar, site en assets laden

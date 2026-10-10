@@ -49,7 +49,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 - [x] Oplossing voor de data op meerdere toestellen (`data/app.db`): de Pi is de centrale server ✅ 2026-10-10
 - [x] Docker-setup ✅ 2026-10-10 (zie [`deploy/README.md`](../deploy/README.md))
 - [x] Draaien op de Raspberry Pi ✅ 2026-10-10 (<http://192.168.1.45:8080>, naast Home Assistant)
-- [ ] Veilige toegang van buitenaf: Cloudflare Tunnel + Cloudflare Access (keuze gebruiker, domeinnaam nodig)
+- [x] Veilige toegang van buitenaf: Tailscale ✅ 2026-10-10 (<https://pi.tail99d614.ts.net>, alleen eigen toestellen; Cloudflare later eventueel)
 - [x] Backups ✅ 2026-10-10 (elke nacht op de Pi; nog niet buiten de Pi)
 
 ### Fase 3: Meer leeropties
