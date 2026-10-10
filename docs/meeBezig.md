@@ -54,6 +54,19 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
   via Tailscale), of tijdelijk `app.db` meekopiëren of synchroniseren (USB, cloudmap).
   Voorkeur van de gebruiker: een eigen "cloud" thuis op de Pi die de data bijhoudt en de site live zet (zie `ideeen.md`)
 
+## Pi (hosting, fase 2)
+
+### Nu bezig
+- 2026-10-10: Toegang tot de Pi herstellen. De gebruiker is gebruikersnaam en wachtwoord vergeten en reset ze
+  via scherm + toetsenbord of `init=/bin/sh` in `cmdline.txt` op de SD-kaart. **Niet opnieuw flashen:
+  Home Assistant draait op deze Pi.** Daarna: SSH-sleutel van de pc erop zetten
+
+### Wat we weten over de Pi
+- IP `192.168.1.45`, waarschijnlijk een Pi 4 (RAM nog onbekend), Raspberry Pi OS / Debian 13 (trixie), SSH aan
+- **Home Assistant draait erop** (poort 8123). De Chinees-app komt ernaast in Docker Compose zonder HA te raken
+- Keuzes van de gebruiker: Docker Compose; toegang "publiek op internet" (nog te beslissen: Cloudflare Tunnel +
+  Access met eigen domein, of Tailscale). Publiek kan alleen **met login** (API-key kost geld, data kan gewist worden)
+
 ## Algemeen klaar
 - 2026-10-02: Laptop getest: backend op poort 8001 + frontend starten werkt, app laadt in Chrome zonder
   console-fouten, "AI beschikbaar" (key werkt). `app.db` op de laptop is nog leeg (geen woordenlijsten)
