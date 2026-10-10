@@ -61,6 +61,8 @@ Alles over de Pi (adres, Home Assistant, commando's, stappenplan): [`deploy/READ
 - ⏸️ Niets.
 
 ### Hierna
+- **https nog niet actief:** Let's Encrypt weigerde op 2026-10-10 het certificaat (`OrderError invalid`, nieuw tailnet).
+  Volgende sessie testen: `curl https://pi.tail99d614.ts.net/api/health`. Tot dan werkt **<http://pi:8080>** via Tailscale
 - Backups ook buiten de Pi bewaren (stap 8)
 - Later eventueel publiek met een domein (Cloudflare Tunnel + Access); de gebruiker wil dat voorlopig niet
 

@@ -10,7 +10,7 @@ De Pi is de **enige plek met data** (`app.db`). Pc, laptop en gsm gebruiken gewo
 | OS | Raspberry Pi OS / Debian 13 (trixie), 64-bit |
 | Adres thuis | `192.168.1.45`, gebruiker `chunrasppedro` (inloggen met SSH-sleutel) |
 | App | `~/chinees` (clone van deze repo), poort **8080** → thuis <http://192.168.1.45:8080> |
-| Overal (Tailscale) | **<https://pi.tail99d614.ts.net>** (https, alleen eigen toestellen) of <http://pi:8080>; Tailscale-IP `100.119.183.20` |
+| Overal (Tailscale) | **<http://pi:8080>** (werkt), <https://pi.tail99d614.ts.net> (certificaat nog geweigerd, zie meeBezig); Tailscale-IP `100.119.183.20` |
 | Ook op de Pi | **Home Assistant** in Docker (`~/homeassistant`: `homeassistant`, `mosquitto`, `matter-server`, poort 8123) |
 
 > ⚠️ **Nooit opnieuw flashen of `~/homeassistant` aanraken.** De Chinees-app is een apart Compose-project (`chinees`).
