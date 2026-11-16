@@ -67,6 +67,10 @@ Alles over de Pi (adres, Home Assistant, commando's, stappenplan): [`deploy/READ
 - Later eventueel publiek met een domein (Cloudflare Tunnel + Access); de gebruiker wil dat voorlopig niet
 
 ### Klaar
+- 2026-11-16: API-key gaf 401 (`invalid x-api-key`, key ingetrokken/vervallen). Nieuwe key in `.env` op de pc,
+  naar de Pi gekopieerd (oude als `~/chinees/.env.bak-20261116`), container opnieuw gemaakt
+  (`up -d --force-recreate`). Getest: health ok, nieuw dictee werkt. SSH ging thuis niet via `192.168.1.45`
+  (timeout), wel via het Tailscale-IP `100.119.183.20`
 - 2026-10-10: Tailscale op de Pi (`pi`, account van de gebruiker) + `tailscale serve`: overal bereikbaar op
   <https://pi.tail99d614.ts.net> voor eigen toestellen. Autostart nagekeken (docker, tailscaled, cron enabled)
 - 2026-10-10: App draait op de Pi in Docker (`~/chinees`, poort 8080, container `chinees`) naast Home Assistant.
