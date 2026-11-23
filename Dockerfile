@@ -13,7 +13,7 @@ FROM python:3.13-slim
 WORKDIR /app/backend
 
 COPY backend/requirements.txt ./
-# Testpakketten (pytest, httpx) zijn niet nodig op de server.
+# Testpakketten (pytest) zijn niet nodig op de server.
 RUN sed '/^# Alleen voor tests/,$d' requirements.txt > requirements-prod.txt \
     && pip install --no-cache-dir -r requirements-prod.txt
 
