@@ -68,13 +68,14 @@ def kies(
     """Kiest `aantal` zinnen zodat zoveel mogelijk weekwoorden aan bod komen.
 
     Volgorde van voorkeur per stap: dekt een nog niet geoefend weekwoord, bevat vaak foute woorden
-    (`keer_fout`), heeft een Nederlandse vertaling, is kort. Toeval zorgt voor variatie tussen dictees.
+    (`keer_fout`), heeft een Nederlandse vertaling. Daarna beslist het toeval (met lichte voorkeur voor
+    korte zinnen), zodat twee dictees van dezelfde week verschillende zinnen krijgen.
     """
     rng = rng or random.Random()
+    toeval = {id(z): rng.random() / (1 + len(z.hanzi) / 20) for z in kandidaten}
     fout = {w["hanzi"]: w.get("keer_fout") or 0 for w in weekwoorden}
     weekhanzi = [w["hanzi"] for w in weekwoorden]
     pool = kandidaten[:]
-    rng.shuffle(pool)
     gekozen: list[TatoebaZin] = []
     gedekt: set[str] = set()
     gezien_hanzi: set[str] = set()
@@ -82,8 +83,8 @@ def kies(
 
         def score(z: TatoebaZin) -> tuple:
             woorden = pinyin.gebruikte_woorden(z.hanzi, weekhanzi)
-            nieuw = len([w for w in woorden if w not in gedekt])
-            return (nieuw, sum(fout.get(w, 0) for w in woorden), bool(z.nl), -len(z.hanzi))
+            nieuw = len([w for w in woorden if w not in gedekt])  # 2+ nieuwe = even goed: meer variatie
+            return (min(nieuw, 2), sum(fout.get(w, 0) for w in woorden), bool(z.nl), toeval[id(z)])
 
         beste = max(pool, key=score)
         pool.remove(beste)
