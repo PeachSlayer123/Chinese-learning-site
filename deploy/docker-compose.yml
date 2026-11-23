@@ -10,7 +10,8 @@ services:
     container_name: chinees
     restart: unless-stopped
     env_file: ../.env
-    ports:
-      - "8080:8080"
+    # Host-netwerk: nodig om de desktop te wekken met Wake-on-LAN (broadcast op het thuisnetwerk).
+    # De app luistert dan rechtstreeks op poort 8080 van de Pi.
+    network_mode: host
     volumes:
       - ../data:/data

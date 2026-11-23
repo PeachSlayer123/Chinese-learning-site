@@ -79,7 +79,7 @@ def test_gecombineerd_ai_fout_na_tatoeba_geeft_waarschuwing(tatoeba_bestand):
     bron = GecombineerdeBron([TatoebaZinnenBron(tatoeba_bestand), KapotteAI()])
     zinnen, waarschuwingen = genereer_dictee(bron, WEEK2, WEEK1, aantal=4)
     assert len(zinnen) == 2
-    assert any("AI kon niet aanvullen" in w for w in waarschuwingen)
+    assert any("Kon niet aanvullen: Geen verbinding" in w for w in waarschuwingen)
 
 
 def test_gecombineerd_ai_fout_zonder_tatoeba_zinnen_blijft_fout():

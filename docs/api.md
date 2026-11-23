@@ -49,7 +49,7 @@ type Zin = {
   vertaling: string             // Nederlandse vertaling
   woorden_van_de_week: string[] // welke weekwoorden erin zitten, bv. ["学习", "中文"]
   onbekende_tekens: string[]    // tekens die niet in een geüploade lijst staan (ideaal: [])
-  bron: "tatoeba" | "ai"        // waar de zin vandaan komt (oude dictees: "ai")
+  bron: "tatoeba" | "ollama" | "ai"  // Tatoeba, lokale AI op de desktop, of Claude (oude dictees: "ai")
   bron_url: string | null       // link naar de zin op tatoeba.org (bronvermelding), anders null
 }
 

@@ -20,7 +20,7 @@ class AIZin(BaseModel):
 
 
 class RuweZin(AIZin):
-    bron: str = "ai"  # "ai" of "tatoeba"
+    bron: str = "ai"  # "ai" (Claude), "ollama" (lokale AI op de desktop) of "tatoeba"
     bron_id: int | None = None  # zin-ID bij Tatoeba (voor de bronvermelding)
 
 
@@ -57,12 +57,24 @@ def _woordregels(woorden: list[dict]) -> str:
     return "\n".join(f"- {w['hanzi']} ({w['pinyin']}): {w['betekenis']}" for w in woorden) or "(geen)"
 
 
+def maak_vraag(weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int, opmerking: str = "") -> str:
+    """De gebruikersvraag voor een taalmodel (Claude of de lokale AI)."""
+    vraag = (
+        f"Woorden van deze week:\n{_woordregels(weekwoorden)}\n\n"
+        f"Woorden die de leerling al kent:\n{_woordregels(bekende_woorden)}\n\n"
+        f"Maak precies {aantal} zinnen."
+    )
+    return f"{vraag}\n\n{opmerking}" if opmerking else vraag
+
+
 class GecombineerdeBron:
-    """Vraagt de bronnen in volgorde (bv. Tatoeba, dan Claude) en vult telkens alleen aan wat ontbreekt.
+    """Vraagt de bronnen in volgorde (bv. Tatoeba, lokale AI, Claude) en vult telkens alleen aan wat
+    ontbreekt.
 
     De volgende bron krijgt als "weekwoorden" de woorden die nog niet geoefend zijn (de al geoefende
     weekwoorden tellen dan als gekend). Zinnen die al eens gegeven zijn, komen niet opnieuw.
-    Faalt een latere bron (AIFout) terwijl er al zinnen zijn, dan volstaan die, met een waarschuwing.
+    Faalt een bron (AIFout), dan komt er een waarschuwing en gaat het verder met de volgende bron.
+    Alleen als geen enkele bron iets opleverde, gaat de fout door.
     """
 
     def __init__(self, bronnen: list[ZinnenBron]):
@@ -74,6 +86,7 @@ class GecombineerdeBron:
         self, weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int, opmerking: str = ""
     ) -> list[RuweZin]:
         resultaat: list[RuweZin] = []
+        fouten: list[AIFout] = []
         for bron in self.bronnen:
             nodig = aantal - len(resultaat)
             if nodig <= 0:
@@ -84,15 +97,18 @@ class GecombineerdeBron:
             try:
                 nieuw = bron.maak_zinnen(open_woorden, bekende_woorden + extra_gekend, nodig, opmerking)
             except AIFout as e:
-                if resultaat or self.gegeven:
-                    if str(e) not in " ".join(self.waarschuwingen):
-                        self.waarschuwingen.append(f"De AI kon niet aanvullen: {e}")
-                    break
-                raise
+                fouten.append(e)
+                continue
             for zin in nieuw:
                 if zin.hanzi not in self.gegeven and len(resultaat) < aantal:
                     self.gegeven.add(zin.hanzi)
                     resultaat.append(zin)
+        if fouten and not resultaat and not self.gegeven:
+            raise fouten[-1]
+        for e in fouten:
+            melding = f"Kon niet aanvullen: {e}"
+            if melding not in self.waarschuwingen:
+                self.waarschuwingen.append(melding)
         return resultaat
 
 
@@ -104,13 +120,7 @@ class ClaudeZinnenBron:
     def maak_zinnen(
         self, weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int, opmerking: str = ""
     ) -> list[RuweZin]:
-        vraag = (
-            f"Woorden van deze week:\n{_woordregels(weekwoorden)}\n\n"
-            f"Woorden die de leerling al kent:\n{_woordregels(bekende_woorden)}\n\n"
-            f"Maak precies {aantal} zinnen."
-        )
-        if opmerking:
-            vraag += f"\n\n{opmerking}"
+        vraag = maak_vraag(weekwoorden, bekende_woorden, aantal, opmerking)
         try:
             antwoord = self.client.messages.parse(
                 model=self.model,

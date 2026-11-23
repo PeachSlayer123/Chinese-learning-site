@@ -15,6 +15,10 @@ De Pi is de **enige plek met data** (`app.db`). Pc, laptop en gsm gebruiken gewo
 
 > ⚠️ **Nooit opnieuw flashen of `~/homeassistant` aanraken.** De Chinees-app is een apart Compose-project (`chinees`).
 
+**Lokale AI (desktop):** in `~/chinees/.env` op de Pi staan `OLLAMA_URL=http://100.79.121.108:11434`,
+`WOL_MAC` en `WOL_BROADCAST=192.168.1.255`. De container draait in `network_mode: host`, zodat hij de
+desktop kan wekken met Wake-on-LAN. Pc uit of onbereikbaar → de app slaat de lokale AI over (waarschuwing).
+
 ## Hoe het werkt
 
 - [`../Dockerfile`](../Dockerfile): bouwt de frontend (`npm run build`) en zet die in één image met de backend.

@@ -54,6 +54,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 
 ### Fase 3: Meer leeropties
 - [x] Echte zinnen uit Tatoeba als eerste bron, Claude vult aan (goedkoper, natuurlijker) ✅ 2026-11-24
+- [x] Lokale AI (Ollama + Qwen op de desktop) als tweede bron, desktop wordt gewekt met Wake-on-LAN ✅ 2026-11-24
 - Zie [`ideeen.md`](ideeen.md)
 
 ## Beslissingen die nog open staan

@@ -27,10 +27,18 @@ class Instellingen:
         default_factory=lambda: Path(os.getenv("DATABASE_PATH", REPO_ROOT / "data" / "app.db"))
     )
     # Waar dictee-zinnen vandaan komen, in volgorde van voorkeur. "tatoeba" = echte zinnen (gratis),
-    # "claude" vult aan wat Tatoeba niet dekt (alleen als er een API-key is).
+    # "ollama" = lokale AI op de desktop (gratis, alleen als OLLAMA_URL ingesteld is),
+    # "claude" vult de rest aan (alleen als er een API-key is).
     zinnen_bronnen: list[str] = field(
-        default_factory=lambda: _lijst(os.getenv("ZINNEN_BRONNEN", "tatoeba,claude"))
+        default_factory=lambda: _lijst(os.getenv("ZINNEN_BRONNEN", "tatoeba,ollama,claude"))
     )
+    ollama_url: str = field(default_factory=lambda: os.getenv("OLLAMA_URL", ""))
+    ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "qwen3.5:9b"))
+    # Wake-on-LAN voor de pc met Ollama (leeg = niet wekken). Werkt alleen als de container het
+    # thuisnetwerk ziet (network_mode: host op de Pi).
+    wol_mac: str = field(default_factory=lambda: os.getenv("WOL_MAC", ""))
+    wol_broadcast: str = field(default_factory=lambda: os.getenv("WOL_BROADCAST", "255.255.255.255"))
+    ollama_wektijd: float = field(default_factory=lambda: float(os.getenv("OLLAMA_WEKTIJD", "120")))
     tatoeba_pad: Path = field(
         default_factory=lambda: Path(
             os.getenv("TATOEBA_PAD", Path(__file__).with_name("data") / "tatoeba_cmn.tsv.gz")

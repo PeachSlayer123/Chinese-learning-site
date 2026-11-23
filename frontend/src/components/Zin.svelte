@@ -22,6 +22,8 @@
         <p class="vertaling">{zin.vertaling}</p>
         {#if zin.bron === 'tatoeba' && zin.bron_url}
           <p class="bron">Zin van <a href={zin.bron_url} target="_blank" rel="noopener">Tatoeba</a></p>
+        {:else if zin.bron === 'ollama'}
+          <p class="bron">Zin gemaakt door de lokale AI (kan wat onnatuurlijk klinken)</p>
         {:else if zin.bron === 'ai'}
           <p class="bron">Zin gemaakt door de AI</p>
         {/if}

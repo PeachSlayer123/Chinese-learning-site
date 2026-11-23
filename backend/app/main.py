@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from . import db
 from .config import instellingen
 from .dictee import AIFout, ClaudeZinnenBron, GecombineerdeBron, ZinnenBron, genereer_dictee
+from .ollama import OllamaZinnenBron
 from .tatoeba import TatoebaZinnenBron
 from .herkenning import (
     ClaudeLijstHerkenner,
@@ -49,14 +50,24 @@ def get_conn() -> Iterator[sqlite3.Connection]:
 
 
 def get_zinnen_bron() -> ZinnenBron:
-    """Bronnen in de volgorde van ZINNEN_BRONNEN (standaard: eerst Tatoeba, dan Claude om aan te vullen).
+    """Bronnen in de volgorde van ZINNEN_BRONNEN (standaard: Tatoeba, lokale AI, Claude).
 
-    Zonder API-key valt Claude weg; Tatoeba werkt altijd (geen kosten, geen internet nodig).
+    Zonder OLLAMA_URL valt de lokale AI weg, zonder API-key Claude; Tatoeba werkt altijd.
     """
     bronnen: list[ZinnenBron] = []
     for naam in instellingen.zinnen_bronnen:
         if naam == "tatoeba":
             bronnen.append(TatoebaZinnenBron(instellingen.tatoeba_pad))
+        elif naam == "ollama" and instellingen.ollama_url:
+            bronnen.append(
+                OllamaZinnenBron(
+                    instellingen.ollama_url,
+                    instellingen.ollama_model,
+                    wol_mac=instellingen.wol_mac,
+                    wol_broadcast=instellingen.wol_broadcast,
+                    wektijd=instellingen.ollama_wektijd,
+                )
+            )
         elif naam == "claude" and instellingen.anthropic_api_key:
             bronnen.append(ClaudeZinnenBron(instellingen.anthropic_api_key, instellingen.claude_model))
     if not bronnen:

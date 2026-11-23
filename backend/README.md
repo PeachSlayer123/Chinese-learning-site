@@ -36,6 +36,7 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 | `app/woordenlijst.py` | CSV inlezen (ook `;`-CSV uit Excel) |
 | `app/herkenning.py` | Woordenlijst lezen uit een screenshot/foto met Claude (vision) |
 | `app/dictee.py` | Zinnen laten maken door Claude + controleren + opnieuw vragen; `GecombineerdeBron` (Tatoeba eerst, Claude vult aan) |
+| `app/ollama.py` | Lokale AI (Ollama + Qwen op de desktop): pc wekken met Wake-on-LAN, zinnen met een tekenbeperking |
 | `app/tatoeba.py` | Echte zinnen uit Tatoeba kiezen die volledig binnen de woordenschat vallen |
 | `app/data/tatoeba_cmn.tsv.gz` | Tatoeba-zinnen (vereenvoudigd Chinees + NL/EN), gemaakt met `tools/tatoeba_bouw.py` |
 | `app/pinyin.py` | Pinyin berekenen (eigen lijst eerst, anders `pypinyin`) en onbekende tekens zoeken |
@@ -47,13 +48,17 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 2. **Eerst Tatoeba**: echte zinnen waarvan elk teken in de woordenlijsten staat en die minstens één
    weekwoord bevatten. Zo veel mogelijk verschillende weekwoorden, vaak-foute woorden en zinnen met een
    Nederlandse vertaling krijgen voorrang (anders Engels, gemarkeerd met "(EN)").
-3. **Claude vult aan** (standaard `claude-haiku-4-5`) voor wat Tatoeba niet heeft, vooral de weekwoorden
-   die nog niet aan bod kwamen. Zonder API-key of bij een AI-fout blijft het bij de Tatoeba-zinnen
-   (met een waarschuwing). Volgorde instelbaar met `ZINNEN_BRONNEN`.
-4. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
+3. **Lokale AI** (als `OLLAMA_URL` ingesteld is): Qwen via Ollama op de desktop maakt zinnen voor de
+   weekwoorden die nog niet aan bod kwamen. Een JSON-schema met een `pattern` laat alleen gekende tekens
+   toe. Slaapt de pc, dan wekt de backend hem (`WOL_MAC`) en wacht max. `OLLAMA_WEKTIJD` seconden.
+   Gratis, maar de zinnen klinken soms onnatuurlijk (de app toont dat bij de zin).
+4. **Claude vult de rest aan** (standaard `claude-haiku-4-5`). Faalt een bron (pc onbereikbaar, geen
+   API-key, AI-fout), dan gaat het verder met de volgende, met een waarschuwing. Volgorde instelbaar met
+   `ZINNEN_BRONNEN` (standaard `tatoeba,ollama,claude`).
+5. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
    Afgekeurde zinnen worden tot 2 keer opnieuw gevraagd; lukt het niet, dan komt er een waarschuwing.
-5. De pinyin wordt door de backend berekend, niet door de AI.
-6. Woorden die je eerder fout had (`PUT /api/dictees/{id}/resultaat`) gaan als extra instructie
+6. De pinyin wordt door de backend berekend, niet door de AI.
+7. Woorden die je eerder fout had (`PUT /api/dictees/{id}/resultaat`) gaan als extra instructie
    mee in de prompt (top 5 op `keer_fout`), zodat ze vaker terugkomen.
 
 ### Tatoeba-bestand opnieuw maken

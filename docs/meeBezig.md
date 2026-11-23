@@ -13,6 +13,10 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-11-24: **Lokale AI als tweede zinnenbron** (`app/ollama.py`): Ollama + `qwen3.5:9b` op de desktop
+  via Tailscale, met tekenbeperking (`pattern`) en Wake-on-LAN als de pc slaapt. Volgorde nu
+  `tatoeba,ollama,claude`; een bron die faalt wordt overgeslagen met een waarschuwing. Container op de
+  Pi in `network_mode: host` (nodig voor de WoL-broadcast). `Zin.bron` kan nu ook `"ollama"`. 50 tests
 - 2026-11-24: **Tatoeba als eerste zinnenbron**: echte zinnen uit Tatoeba (36 350 vereenvoudigde
   zinnen, `app/tatoeba.py`), Claude vult enkel aan wat ontbreekt (`GecombineerdeBron`). Werkt ook zonder
   API-key. Nieuwe velden `Zin.bron` + `Zin.bron_url`, instellingen `ZINNEN_BRONNEN`/`TATOEBA_PAD`.
