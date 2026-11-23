@@ -82,15 +82,23 @@ class GecombineerdeBron:
         self.gegeven: set[str] = set()
         self.waarschuwingen: list[str] = []
 
+    def vermijd(self, hanzi: set[str]) -> None:
+        """Zinnen die liever niet terugkomen (bv. uit de vorige dictees van deze week)."""
+        for bron in self.bronnen:
+            if hasattr(bron, "vermijden"):
+                bron.vermijden |= hanzi
+
     def maak_zinnen(
         self, weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int, opmerking: str = ""
     ) -> list[RuweZin]:
         resultaat: list[RuweZin] = []
         fouten: list[AIFout] = []
-        for bron in self.bronnen:
+        for i, bron in enumerate(self.bronnen):
             nodig = aantal - len(resultaat)
             if nodig <= 0:
                 break
+            if hasattr(bron, "laat_ruimte"):
+                bron.laat_ruimte = i < len(self.bronnen) - 1
             gedekt = {w["hanzi"] for w in weekwoorden if any(w["hanzi"] in z.hanzi for z in resultaat)}
             open_woorden = [w for w in weekwoorden if w["hanzi"] not in gedekt] or weekwoorden
             extra_gekend = [w for w in weekwoorden if w not in open_woorden]
@@ -100,6 +108,15 @@ class GecombineerdeBron:
                 fouten.append(e)
                 continue
             for zin in nieuw:
+                if zin.hanzi not in self.gegeven and len(resultaat) < aantal:
+                    self.gegeven.add(zin.hanzi)
+                    resultaat.append(zin)
+        # Nog plaatsen over? Bronnen die kunnen aanvullen (Tatoeba, minder streng) vullen de rest.
+        for bron in self.bronnen:
+            nodig = aantal - len(resultaat)
+            if nodig <= 0 or not hasattr(bron, "vul_aan"):
+                continue
+            for zin in bron.vul_aan(weekwoorden, bekende_woorden, nodig):
                 if zin.hanzi not in self.gegeven and len(resultaat) < aantal:
                     self.gegeven.add(zin.hanzi)
                     resultaat.append(zin)

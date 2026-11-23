@@ -41,7 +41,9 @@ def tatoeba_bestand(tmp_path):
 
 def test_tatoeba_kiest_alleen_zinnen_binnen_woordenschat(tatoeba_bestand):
     bron = TatoebaZinnenBron(tatoeba_bestand, rng=random.Random(1))
-    zinnen = bron.maak_zinnen(WEEK2, WEEK1, aantal=5)
+    # maak_zinnen: alleen zinnen die een nieuw weekwoord oefenen → 我是中文 (中文 al gedekt) niet
+    assert [z.hanzi for z in bron.maak_zinnen(WEEK2, WEEK1, aantal=5)] == ["我学习中文。"]
+    zinnen = TatoebaZinnenBron(tatoeba_bestand).vul_aan(WEEK2, WEEK1, aantal=5)
     assert {z.hanzi for z in zinnen} == {"我学习中文。", "我是中文。"}
     assert all(z.bron == "tatoeba" for z in zinnen)
     vertalingen = {z.hanzi: z.vertaling for z in zinnen}
@@ -64,10 +66,12 @@ def test_gecombineerd_ai_vult_enkel_aan(tatoeba_bestand):
     ai = NepBron([[("你学习。", "Jij leert."), ("我学习中文。", "dubbel")]])
     bron = GecombineerdeBron([TatoebaZinnenBron(tatoeba_bestand, rng=random.Random(3)), ai])
     zinnen, waarschuwingen = genereer_dictee(bron, WEEK2, WEEK1, aantal=3)
-    assert [z["bron"] for z in zinnen] == ["tatoeba", "tatoeba", "ai"]
+    # Tatoeba eerst (enkel nieuwe weekwoorden), dan de AI, dan vult Tatoeba de rest aan
+    assert [z["hanzi"] for z in zinnen] == ["我学习中文。", "你学习。", "我是中文。"]
+    assert [z["bron"] for z in zinnen] == ["tatoeba", "ai", "tatoeba"]
     assert zinnen[0]["bron_url"].startswith("https://tatoeba.org/")
-    assert zinnen[2]["hanzi"] == "你学习。" and zinnen[2]["bron_url"] is None
-    assert ai.aanroepen[0]["aantal"] == 1  # alleen wat Tatoeba niet had
+    assert zinnen[1]["bron_url"] is None
+    assert ai.aanroepen[0]["aantal"] == 2  # alleen wat Tatoeba niet had
     assert waarschuwingen == []
 
 
@@ -115,3 +119,32 @@ def test_api_week1_uit_tatoeba_en_503_als_alleen_claude_zonder_key(client, monke
 
 def test_ruwe_zin_standaard_bron_is_ai():
     assert RuweZin(hanzi="你好。", vertaling="Hallo.").bron == "ai"
+
+
+def test_tatoeba_vermijdt_zinnen_uit_vorige_dictees(tatoeba_bestand):
+    bron = TatoebaZinnenBron(tatoeba_bestand, vermijden={"我学习中文。"})
+    assert [z.hanzi for z in bron.maak_zinnen(WEEK2, WEEK1, 2)] == ["我是中文。"]
+    # alleen als er niets anders is, komt een vermeden zin toch terug
+    assert [z.hanzi for z in bron.vul_aan(WEEK2, WEEK1, 1)] == ["我学习中文。"]
+
+
+def test_api_tweede_dictee_herhaalt_niet_meteen(client, monkeypatch, tatoeba_bestand):  # noqa: F811
+    monkeypatch.setattr(instellingen, "anthropic_api_key", "")
+    monkeypatch.setattr(instellingen, "ollama_url", "")
+    monkeypatch.setattr(instellingen, "tatoeba_pad", tatoeba_bestand)
+    upload(client, "week-01.csv", CSV_WEEK1)
+    upload(client, "week-02.csv", CSV_WEEK2)
+    eerste = client.post("/api/dictees", json={"week": 2, "aantal_zinnen": 1}).json()["zinnen"]
+    tweede = client.post("/api/dictees", json={"week": 2, "aantal_zinnen": 1}).json()["zinnen"]
+    assert eerste[0]["hanzi"] != tweede[0]["hanzi"]
+
+
+def test_tatoeba_laat_ruimte_voor_woorden_zonder_zin(tatoeba_bestand):
+    week = WEEK2 + [{"hanzi": "老师", "pinyin": "lǎoshī", "betekenis": "leraar", "keer_fout": 0}]
+    ai = NepBron([[("老师学习中文。", "De leraar leert Chinees.")]])
+    zinnen, _ = genereer_dictee(
+        GecombineerdeBron([TatoebaZinnenBron(tatoeba_bestand, rng=random.Random(4)), ai]), week, WEEK1, 2
+    )
+    # 老师 staat in geen enkele Tatoeba-zin → 1 van de 2 plaatsen gaat naar de AI
+    assert [z["bron"] for z in zinnen] == ["tatoeba", "ai"]
+    assert ai.aanroepen[0]["aantal"] == 1

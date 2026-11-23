@@ -49,6 +49,9 @@ def get_conn() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+RECENTE_DICTEES = 3  # zinnen uit zoveel vorige dictees van dezelfde week komen niet meteen terug
+
+
 def get_zinnen_bron() -> ZinnenBron:
     """Bronnen in de volgorde van ZINNEN_BRONNEN (standaard: Tatoeba, lokale AI, Claude).
 
@@ -305,6 +308,11 @@ def maak_dictee(
     alle = db.haal_woorden(conn, tot_week=aanvraag.week)
     weekwoorden = [w for w in alle if w["week"] == aanvraag.week]
     bekend = [w for w in alle if w["week"] != aanvraag.week]
+    if hasattr(bron, "vermijd"):  # zinnen van de laatste dictees van deze week niet meteen herhalen
+        recent = db.lijst_dictees(conn, aanvraag.week)[:RECENTE_DICTEES]
+        bron.vermijd(
+            {z["hanzi"] for d in recent if (vol := db.haal_dictee(conn, d["id"])) for z in vol["zinnen"]}
+        )
 
     try:
         zinnen, waarschuwingen = genereer_dictee(bron, weekwoorden, bekend, aanvraag.aantal_zinnen)

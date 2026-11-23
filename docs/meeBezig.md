@@ -13,6 +13,10 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-11-24: Fix na test door de gebruiker: (1) steeds dezelfde Tatoeba-zinnen → vaak-foute woorden
+  wogen te zwaar; nu toeval + zinnen uit de laatste 3 dictees van die week vermijden. (2) De lokale AI
+  kwam nooit aan bod (Tatoeba had altijd genoeg zinnen) → Tatoeba geeft enkel zinnen met nieuwe
+  weekwoorden en laat ± 1/3 vrij voor woorden die nergens in Tatoeba staan. 53 tests
 - 2026-11-24: **Lokale AI als tweede zinnenbron** (`app/ollama.py`): Ollama + `qwen3.5:9b` op de desktop
   via Tailscale, met tekenbeperking (`pattern`) en Wake-on-LAN als de pc slaapt. Volgorde nu
   `tatoeba,ollama,claude`; een bron die faalt wordt overgeslagen met een waarschuwing. Container op de

@@ -46,13 +46,16 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 
 1. Weekwoorden = woorden van de gekozen week; bekende woorden = alle weken met een lager nummer.
 2. **Eerst Tatoeba**: echte zinnen waarvan elk teken in de woordenlijsten staat en die minstens één
-   weekwoord bevatten. Zo veel mogelijk verschillende weekwoorden, vaak-foute woorden en zinnen met een
-   Nederlandse vertaling krijgen voorrang (anders Engels, gemarkeerd met "(EN)").
+   nieuw weekwoord oefenen. Voorrang: nieuwe weekwoorden, vaak-foute woorden, Nederlandse vertaling
+   (anders Engels, met "(EN)"), daarna toeval. Zinnen uit de laatste 3 dictees van die week komen niet
+   meteen terug. Zijn er weekwoorden die in geen enkele Tatoeba-zin passen (namen, getallen), dan blijft
+   ± 1/3 van de zinnen vrij voor de AI.
 3. **Lokale AI** (als `OLLAMA_URL` ingesteld is): Qwen via Ollama op de desktop maakt zinnen voor de
    weekwoorden die nog niet aan bod kwamen. Een JSON-schema met een `pattern` laat alleen gekende tekens
    toe. Slaapt de pc, dan wekt de backend hem (`WOL_MAC`) en wacht max. `OLLAMA_WEKTIJD` seconden.
    Gratis, maar de zinnen klinken soms onnatuurlijk (de app toont dat bij de zin).
-4. **Claude vult de rest aan** (standaard `claude-haiku-4-5`). Faalt een bron (pc onbereikbaar, geen
+4. **Claude vult aan** wat dan nog ontbreekt, en Tatoeba (minder streng) vult de laatste plaatsen.
+   **Claude** (standaard `claude-haiku-4-5`). Faalt een bron (pc onbereikbaar, geen
    API-key, AI-fout), dan gaat het verder met de volgende, met een waarschuwing. Volgorde instelbaar met
    `ZINNEN_BRONNEN` (standaard `tatoeba,ollama,claude`).
 5. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
