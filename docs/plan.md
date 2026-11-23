@@ -53,6 +53,7 @@ vooral met **dictees**: de app geeft pinyin, ik schrijf de karakters op papier e
 - [x] Backups ✅ 2026-10-10 (elke nacht op de Pi; nog niet buiten de Pi)
 
 ### Fase 3: Meer leeropties
+- [x] Echte zinnen uit Tatoeba als eerste bron, Claude vult aan (goedkoper, natuurlijker) ✅ 2026-11-24
 - Zie [`ideeen.md`](ideeen.md)
 
 ## Beslissingen die nog open staan

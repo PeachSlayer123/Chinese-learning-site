@@ -6,7 +6,7 @@ De app draait op mijn Raspberry Pi (<http://192.168.1.45:8080>, zie [`deploy/REA
 ## Wat de app moet kunnen
 
 1. **Woordenlijst per week uploaden** (bv. een CSV-bestand met hanzi, pinyin en betekenis).
-2. **Dictee maken:** de AI maakt zinnen met de woordjes van deze week, eventueel aangevuld met woorden die ik al ken.
+2. **Dictee maken:** echte zinnen uit [Tatoeba](https://tatoeba.org) (CC BY 2.0 FR) met de woordjes van deze week en woorden die ik al ken; de AI vult aan wat Tatoeba niet heeft.
    De app toont alleen de **pinyin**. Ik schrijf de karakters op papier.
 3. **Oplossing checken:** daarna toont de app de zinnen in karakters (hanzi), met vertaling.
 4. Later: meer leeropties met AI (flashcards, gesprekken, uitleg, ...).

@@ -12,7 +12,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from . import db
 from .config import instellingen
-from .dictee import AIFout, ClaudeZinnenBron, ZinnenBron, genereer_dictee
+from .dictee import AIFout, ClaudeZinnenBron, GecombineerdeBron, ZinnenBron, genereer_dictee
+from .tatoeba import TatoebaZinnenBron
 from .herkenning import (
     ClaudeLijstHerkenner,
     LijstHerkenner,
@@ -48,9 +49,19 @@ def get_conn() -> Iterator[sqlite3.Connection]:
 
 
 def get_zinnen_bron() -> ZinnenBron:
-    if not instellingen.anthropic_api_key:
+    """Bronnen in de volgorde van ZINNEN_BRONNEN (standaard: eerst Tatoeba, dan Claude om aan te vullen).
+
+    Zonder API-key valt Claude weg; Tatoeba werkt altijd (geen kosten, geen internet nodig).
+    """
+    bronnen: list[ZinnenBron] = []
+    for naam in instellingen.zinnen_bronnen:
+        if naam == "tatoeba":
+            bronnen.append(TatoebaZinnenBron(instellingen.tatoeba_pad))
+        elif naam == "claude" and instellingen.anthropic_api_key:
+            bronnen.append(ClaudeZinnenBron(instellingen.anthropic_api_key, instellingen.claude_model))
+    if not bronnen:
         raise HTTPException(503, "De AI is niet beschikbaar: ANTHROPIC_API_KEY ontbreekt in .env.")
-    return ClaudeZinnenBron(instellingen.anthropic_api_key, instellingen.claude_model)
+    return GecombineerdeBron(bronnen)
 
 
 def get_lijst_herkenner() -> LijstHerkenner | None:
@@ -117,6 +128,8 @@ class Zin(BaseModel):
     vertaling: str
     woorden_van_de_week: list[str]
     onbekende_tekens: list[str]
+    bron: str = "ai"  # "tatoeba" of "ai" (oude dictees: "ai")
+    bron_url: str | None = None  # link naar de zin op tatoeba.org (bronvermelding, CC BY 2.0 FR)
 
 
 class ZinResultaat(BaseModel):
@@ -287,6 +300,12 @@ def maak_dictee(
     except AIFout as e:
         raise HTTPException(502, str(e))
     if not zinnen:
+        if not instellingen.anthropic_api_key:
+            raise HTTPException(
+                503,
+                "Geen passende zinnen gevonden in Tatoeba, en de AI is niet beschikbaar "
+                "(ANTHROPIC_API_KEY ontbreekt in .env).",
+            )
         raise HTTPException(502, "De AI gaf geen zinnen terug. Probeer het opnieuw.")
 
     dictee_id = db.sla_dictee_op(conn, aanvraag.week, zinnen, waarschuwingen)

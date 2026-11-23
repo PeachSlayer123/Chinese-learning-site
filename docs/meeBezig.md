@@ -6,13 +6,17 @@ in twee terminals (zie [`samenwerking.md`](samenwerking.md)). **Elke kant werkt 
 ## Backend (terminal 1, worktree `../Chinees-backend`, branch `backend`)
 
 ### Nu bezig
-- ⏸️ Niets. Wacht op de volgende taak of op feedback van de frontend.
+- ⏸️ Niets.
 
 ### Hierna
 - Prompts bijsturen op basis van echte woordenlijsten van de gebruiker
 - Printversie van een dictee (frontend of backend, nog afspreken)
 
 ### Klaar
+- 2026-11-24: **Tatoeba als eerste zinnenbron**: echte zinnen uit Tatoeba (36 350 vereenvoudigde
+  zinnen, `app/tatoeba.py`), Claude vult enkel aan wat ontbreekt (`GecombineerdeBron`). Werkt ook zonder
+  API-key. Nieuwe velden `Zin.bron` + `Zin.bron_url`, instellingen `ZINNEN_BRONNEN`/`TATOEBA_PAD`.
+  Frontend: bronvermelding per zin + CC BY 2.0 FR-regel onder het dictee. 43 tests
 - 2026-10-02: Resultaat wissen met `{"zinnen": []}` (vraag van de frontend)
 - 2026-10-02: Dictee-resultaat: `PUT /api/dictees/{id}/resultaat`, `Woord.keer_fout`,
   `Dictee.resultaat`, `DicteeSamenvatting.aantal_goed`. Vaak foute woorden gaan mee in de prompt.

@@ -35,19 +35,39 @@ De tests gebruiken een nep-AI, dus ze kosten geen API-tegoed.
 | `app/db.py` | SQLite-tabellen en queries |
 | `app/woordenlijst.py` | CSV inlezen (ook `;`-CSV uit Excel) |
 | `app/herkenning.py` | Woordenlijst lezen uit een screenshot/foto met Claude (vision) |
-| `app/dictee.py` | Zinnen laten maken door Claude + controleren + opnieuw vragen |
+| `app/dictee.py` | Zinnen laten maken door Claude + controleren + opnieuw vragen; `GecombineerdeBron` (Tatoeba eerst, Claude vult aan) |
+| `app/tatoeba.py` | Echte zinnen uit Tatoeba kiezen die volledig binnen de woordenschat vallen |
+| `app/data/tatoeba_cmn.tsv.gz` | Tatoeba-zinnen (vereenvoudigd Chinees + NL/EN), gemaakt met `tools/tatoeba_bouw.py` |
 | `app/pinyin.py` | Pinyin berekenen (eigen lijst eerst, anders `pypinyin`) en onbekende tekens zoeken |
 | `app/config.py` | Instellingen uit `.env` |
 
 ## Hoe een dictee gemaakt wordt
 
 1. Weekwoorden = woorden van de gekozen week; bekende woorden = alle weken met een lager nummer.
-2. Claude (standaard `claude-haiku-4-5`) geeft zinnen terug als JSON (`hanzi` + `vertaling`).
-3. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
+2. **Eerst Tatoeba**: echte zinnen waarvan elk teken in de woordenlijsten staat en die minstens één
+   weekwoord bevatten. Zo veel mogelijk verschillende weekwoorden, vaak-foute woorden en zinnen met een
+   Nederlandse vertaling krijgen voorrang (anders Engels, gemarkeerd met "(EN)").
+3. **Claude vult aan** (standaard `claude-haiku-4-5`) voor wat Tatoeba niet heeft, vooral de weekwoorden
+   die nog niet aan bod kwamen. Zonder API-key of bij een AI-fout blijft het bij de Tatoeba-zinnen
+   (met een waarschuwing). Volgorde instelbaar met `ZINNEN_BRONNEN`.
+4. De backend controleert elke zin: minstens één weekwoord, en geen tekens buiten de gekende woorden.
    Afgekeurde zinnen worden tot 2 keer opnieuw gevraagd; lukt het niet, dan komt er een waarschuwing.
-4. De pinyin wordt door de backend berekend, niet door de AI.
-5. Woorden die je eerder fout had (`PUT /api/dictees/{id}/resultaat`) gaan als extra instructie
+5. De pinyin wordt door de backend berekend, niet door de AI.
+6. Woorden die je eerder fout had (`PUT /api/dictees/{id}/resultaat`) gaan als extra instructie
    mee in de prompt (top 5 op `keer_fout`), zodat ze vaker terugkomen.
+
+### Tatoeba-bestand opnieuw maken
+
+Bron: [Tatoeba](https://tatoeba.org), licentie **CC BY 2.0 FR** (bronvermelding staat in de app en
+bij elke zin). Download van <https://downloads.tatoeba.org/exports/per_language/> de bestanden
+`cmn/cmn_sentences.tsv.bz2`, `nld/nld_sentences.tsv.bz2`, `eng/eng_sentences.tsv.bz2` en
+`https://downloads.tatoeba.org/exports/links.tar.bz2` in één map, en dan (vanuit de repo-root):
+
+```
+python tools/tatoeba_bouw.py <map-met-downloads>
+```
+
+Dat schrijft `backend/app/data/tatoeba_cmn.tsv.gz` (alleen vereenvoudigde zinnen tot 40 tekens).
 
 ## Woordenlijst uit een screenshot
 

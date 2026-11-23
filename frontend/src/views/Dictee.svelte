@@ -193,7 +193,7 @@
   {#if laden}
     <div class="laden" role="status">
       <span class="pen" aria-hidden="true">写</span>
-      Claude schrijft {aantal} {aantal === 1 ? 'zin' : 'zinnen'} met de woorden van week {week}…
+      Zinnen zoeken met de woorden van week {week}…
     </div>
   {:else if ophalen}
     <div class="laden" role="status">Laden…</div>
@@ -219,6 +219,12 @@
         />
       {/each}
     </ol>
+    {#if dictee.zinnen.some((z) => z.bron === 'tatoeba')}
+      <p class="bron attributie">
+        Zinnen met „Tatoeba” komen van <a href="https://tatoeba.org" target="_blank" rel="noopener">Tatoeba.org</a>
+        (<a href="https://creativecommons.org/licenses/by/2.0/fr/" target="_blank" rel="noopener">CC BY 2.0 FR</a>).
+      </p>
+    {/if}
   {:else if !fout}
     <div class="leeg">
       <p>Er is nog geen dictee voor week {week}.</p>

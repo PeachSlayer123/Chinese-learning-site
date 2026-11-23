@@ -110,6 +110,8 @@ ol.zinnen { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 
 
 .oplossing { display: grid; gap: 8px; }
 .vertaling { margin: 0; font-size: 15.5px; }
+.bron { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+.bron a { color: inherit; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .chip { font-size: 13px; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 .chip .zh { font-family: var(--f-hanzi); }

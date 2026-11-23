@@ -136,7 +136,9 @@ def test_dictee_met_onbekende_tekens_geeft_waarschuwing(client):
 
 
 def test_dictee_zonder_api_key(client, monkeypatch):
+    # Zonder key en zonder Tatoeba als bron: 503. (Met Tatoeba: zie test_tatoeba.py.)
     monkeypatch.setattr(instellingen, "anthropic_api_key", "")
+    monkeypatch.setattr(instellingen, "zinnen_bronnen", ["claude"])
     upload(client, "week-01.csv", CSV_WEEK1)
     assert client.get("/api/health").json()["ai_beschikbaar"] is False
     assert client.post("/api/dictees", json={"week": 1}).status_code == 503

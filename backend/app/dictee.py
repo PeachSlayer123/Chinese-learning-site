@@ -1,4 +1,5 @@
-"""Dictee genereren: Claude maakt zinnen, de backend controleert ze en berekent de pinyin."""
+"""Dictee genereren: zinnen komen uit Tatoeba (echte zinnen) en/of Claude, de backend controleert
+ze en berekent de pinyin."""
 
 from typing import Protocol
 
@@ -11,13 +12,20 @@ MAX_EXTRA_RONDES = 2  # hoe vaak we zinnen die de controle niet halen opnieuw vr
 MAX_OEFENWOORDEN = 5  # zoveel woorden die vaak fout waren, krijgen extra aandacht
 
 
-class RuweZin(BaseModel):
+class AIZin(BaseModel):
+    """Wat Claude teruggeeft (structured output)."""
+
     hanzi: str
     vertaling: str
 
 
+class RuweZin(AIZin):
+    bron: str = "ai"  # "ai" of "tatoeba"
+    bron_id: int | None = None  # zin-ID bij Tatoeba (voor de bronvermelding)
+
+
 class ZinnenAntwoord(BaseModel):
-    zinnen: list[RuweZin]
+    zinnen: list[AIZin]
 
 
 class AIFout(RuntimeError):
@@ -47,6 +55,45 @@ Regels:
 
 def _woordregels(woorden: list[dict]) -> str:
     return "\n".join(f"- {w['hanzi']} ({w['pinyin']}): {w['betekenis']}" for w in woorden) or "(geen)"
+
+
+class GecombineerdeBron:
+    """Vraagt de bronnen in volgorde (bv. Tatoeba, dan Claude) en vult telkens alleen aan wat ontbreekt.
+
+    De volgende bron krijgt als "weekwoorden" de woorden die nog niet geoefend zijn (de al geoefende
+    weekwoorden tellen dan als gekend). Zinnen die al eens gegeven zijn, komen niet opnieuw.
+    Faalt een latere bron (AIFout) terwijl er al zinnen zijn, dan volstaan die, met een waarschuwing.
+    """
+
+    def __init__(self, bronnen: list[ZinnenBron]):
+        self.bronnen = bronnen
+        self.gegeven: set[str] = set()
+        self.waarschuwingen: list[str] = []
+
+    def maak_zinnen(
+        self, weekwoorden: list[dict], bekende_woorden: list[dict], aantal: int, opmerking: str = ""
+    ) -> list[RuweZin]:
+        resultaat: list[RuweZin] = []
+        for bron in self.bronnen:
+            nodig = aantal - len(resultaat)
+            if nodig <= 0:
+                break
+            gedekt = {w["hanzi"] for w in weekwoorden if any(w["hanzi"] in z.hanzi for z in resultaat)}
+            open_woorden = [w for w in weekwoorden if w["hanzi"] not in gedekt] or weekwoorden
+            extra_gekend = [w for w in weekwoorden if w not in open_woorden]
+            try:
+                nieuw = bron.maak_zinnen(open_woorden, bekende_woorden + extra_gekend, nodig, opmerking)
+            except AIFout as e:
+                if resultaat or self.gegeven:
+                    if str(e) not in " ".join(self.waarschuwingen):
+                        self.waarschuwingen.append(f"De AI kon niet aanvullen: {e}")
+                    break
+                raise
+            for zin in nieuw:
+                if zin.hanzi not in self.gegeven and len(resultaat) < aantal:
+                    self.gegeven.add(zin.hanzi)
+                    resultaat.append(zin)
+        return resultaat
 
 
 class ClaudeZinnenBron:
@@ -81,7 +128,7 @@ class ClaudeZinnenBron:
 
         if antwoord.stop_reason == "refusal" or antwoord.parsed_output is None:
             raise AIFout(f"De AI gaf geen bruikbaar antwoord (stop_reason: {antwoord.stop_reason}).")
-        return antwoord.parsed_output.zinnen
+        return [RuweZin(hanzi=z.hanzi, vertaling=z.vertaling) for z in antwoord.parsed_output.zinnen]
 
 
 def _controleer(zin: RuweZin, weekhanzi: list[str], bekende_hanzi: list[str]) -> list[str]:
@@ -144,7 +191,7 @@ def genereer_dictee(
             opmerking = f"{oefenen}\n\n{feedback}" if oefenen else feedback
 
     # Na de extra rondes: aanvullen met de beste afgekeurde zinnen, met een waarschuwing.
-    waarschuwingen = []
+    waarschuwingen = list(getattr(bron, "waarschuwingen", []))
     zinnen_ruw = goed[:aantal] + beste_afgekeurde[: max(0, aantal - len(goed))]
 
     zinnen = []
@@ -163,6 +210,12 @@ def genereer_dictee(
                 "vertaling": zin.vertaling,
                 "woorden_van_de_week": gebruikt,
                 "onbekende_tekens": onbekend,
+                "bron": zin.bron,
+                "bron_url": (
+                    f"https://tatoeba.org/nl/sentences/show/{zin.bron_id}"
+                    if zin.bron == "tatoeba" and zin.bron_id
+                    else None
+                ),
             }
         )
 

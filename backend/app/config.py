@@ -26,6 +26,16 @@ class Instellingen:
     database_pad: Path = field(
         default_factory=lambda: Path(os.getenv("DATABASE_PATH", REPO_ROOT / "data" / "app.db"))
     )
+    # Waar dictee-zinnen vandaan komen, in volgorde van voorkeur. "tatoeba" = echte zinnen (gratis),
+    # "claude" vult aan wat Tatoeba niet dekt (alleen als er een API-key is).
+    zinnen_bronnen: list[str] = field(
+        default_factory=lambda: _lijst(os.getenv("ZINNEN_BRONNEN", "tatoeba,claude"))
+    )
+    tatoeba_pad: Path = field(
+        default_factory=lambda: Path(
+            os.getenv("TATOEBA_PAD", Path(__file__).with_name("data") / "tatoeba_cmn.tsv.gz")
+        )
+    )
     # Map met de gebouwde frontend (`npm run build`). Alleen gezet in Docker: dan serveert de backend
     # ook de site, zodat alles op één poort draait. Lokaal blijft dit leeg en draait Vite apart.
     frontend_map: Path | None = field(

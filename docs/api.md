@@ -49,6 +49,8 @@ type Zin = {
   vertaling: string             // Nederlandse vertaling
   woorden_van_de_week: string[] // welke weekwoorden erin zitten, bv. ["学习", "中文"]
   onbekende_tekens: string[]    // tekens die niet in een geüploade lijst staan (ideaal: [])
+  bron: "tatoeba" | "ai"        // waar de zin vandaan komt (oude dictees: "ai")
+  bron_url: string | null       // link naar de zin op tatoeba.org (bronvermelding), anders null
 }
 
 type ZinResultaat = {
@@ -79,7 +81,8 @@ type DicteeSamenvatting = {
 
 ### `GET /api/health`
 → `200 {"status": "ok", "ai_beschikbaar": true}`
-`ai_beschikbaar` is `false` als er geen API-key ingesteld is (dan geeft dictee genereren `503`).
+`ai_beschikbaar` is `false` als er geen API-key ingesteld is. Dictees werken dan nog, maar alleen met
+zinnen uit Tatoeba; vindt Tatoeba geen enkele passende zin, dan `503`.
 
 ### Weken / woordenlijsten
 
